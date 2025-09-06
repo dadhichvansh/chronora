@@ -1,7 +1,7 @@
 # Chronora 📝
 
-- **Chronora** is a modern blogging platform built with the MERN stack (MongoDB, Express, React, Node.js).  
-  It lets users write, share, and explore stories in a beautiful and minimal UI.
+**Chronora** is a modern blogging platform built with the MERN stack (MongoDB, Express, React, Node.js).  
+It lets users write, share, and explore stories in a beautiful and minimal UI.
 
 ---
 
