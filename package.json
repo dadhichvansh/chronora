@@ -1,0 +1,21 @@
+{
+  "name": "chronora",
+  "version": "1.0.0",
+  "description": "Chronora: Your voice, your chronicle.",
+  "main": "index.js",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=client\" \"npm run dev --workspace=server\""
+  },
+  "keywords": [],
+  "author": "Vansh Dadhich",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
