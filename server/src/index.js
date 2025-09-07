@@ -5,9 +5,6 @@ import { connectDB } from './db/db.js';
 // Initialize express app
 const app = express();
 
-// Connect to the database
-connectDB();
-
 // Middleware
 app.use(cors());
 
@@ -17,10 +14,13 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.get('/', (req, res) => {
-  res.send('Chronora server running 🚀');
+  res.json({ ok: true, message: 'Chronora server running 🚀' });
 });
 
 // Start the server
 app.listen(process.env.PORT, () => {
   console.log(`Listening to server at http://localhost:${process.env.PORT}`);
 });
+
+// Connect to the database
+connectDB();
