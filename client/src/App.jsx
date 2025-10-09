@@ -1,14 +1,16 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { Layout } from './components/layout/Layout';
+import { RootLayout } from './components/layout/Layout';
 import { ErrorPage } from './pages/ErrorPage';
 import { Home } from './pages/Home';
+import { Landing } from './pages/Landing';
 
+const isLoggedIn = false;
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Layout />,
+    element: <RootLayout />,
     errorElement: <ErrorPage />,
-    children: [{ path: '/', element: <Home /> }],
+    children: [{ path: '/', element: isLoggedIn ? <Home /> : <Landing /> }],
   },
 ]);
 
