@@ -6,7 +6,7 @@ export const UserRegistrationSchema = z.object({
   password: z
     .string()
     .min(6, 'Password must be at least 6 characters long')
-    .max(100, 'Password must be at most 30 characters long'),
+    .max(30, 'Password must be at most 30 characters long'),
 });
 
 export const UserLoginSchema = z.object({
@@ -14,5 +14,5 @@ export const UserLoginSchema = z.object({
   password: z
     .string()
     .min(6, 'Password must be at least 6 characters long')
-    .max(100, 'Password must be at most 30 characters long'),
+    .max(30, 'Password must be at most 30 characters long'),
 });
