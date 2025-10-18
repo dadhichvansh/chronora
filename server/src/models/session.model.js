@@ -4,6 +4,7 @@ const sessionSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   valid: { type: Boolean, default: true },
   userAgent: { type: String },
+  requestIp: { type: String },
   createdAt: { type: Date, default: Date.now },
   expiresAt: { type: Date, required: true }, // session expiry
 });
