@@ -11,23 +11,18 @@ import {
 export async function registerUser(req, res) {
   try {
     // Validate request body
-    const {
-      success,
-      data: { username, email, password },
-      error,
-    } = UserRegistrationSchema.safeParse(req.body);
-    if (!success) {
-      const formattedErrors = error.errors.map((e) => ({
-        field: e.path.join('.'),
-        message: e.message,
-      }));
-
+    const result = UserRegistrationSchema.safeParse(req.body);
+    if (!result.success) {
+      const formattedErrors = result.error?.issues?.[0]?.message || 'Invalid input';
       return res.status(400).json({
         ok: false,
         message: 'Validation failed',
-        errors: process.env.NODE_ENV === 'development' ? formattedErrors : undefined,
+        errors: formattedErrors,
       });
     }
+
+    // Destructure validated data
+    const { username, email, password } = result.data;
 
     // Check if user already exists
     const userExists = await User.findOne({ email });
