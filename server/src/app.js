@@ -1,17 +1,21 @@
 import express from 'express';
 import cors from 'cors';
 import requestIp from 'request-ip';
+import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.routes.js';
 
 // Initialize express app
 const app = express();
 
-// Middleware
+// CORS middleware
 app.use(cors());
 
 // Body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Cookie parser
+app.use(cookieParser());
 
 // IP address logging middleware
 app.use(requestIp.mw());
