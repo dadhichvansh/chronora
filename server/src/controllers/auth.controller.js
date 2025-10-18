@@ -1,6 +1,12 @@
 import User from '../models/user.model.js';
 import { hashPassword } from '../utils/password.js';
 import { UserRegistrationSchema } from '../validations/auth.validations.js';
+import { createSession } from '../services/auth.services.js';
+import {
+  ACCESS_TOKEN_COOKIE_MAX_AGE_MS,
+  COOKIE_OPTIONS,
+  REFRESH_TOKEN_COOKIE_MAX_AGE_MS,
+} from '../constants.js';
 
 export async function registerUser(req, res) {
   try {
@@ -11,11 +17,15 @@ export async function registerUser(req, res) {
       error,
     } = UserRegistrationSchema.safeParse(req.body);
     if (!success) {
+      const formattedErrors = error.errors.map((e) => ({
+        field: e.path.join('.'),
+        message: e.message,
+      }));
+
       return res.status(400).json({
         ok: false,
         message: 'Validation failed',
-        errors:
-          process.env.NODE_ENV === 'development' ? error.errors : undefined,
+        errors: process.env.NODE_ENV === 'development' ? formattedErrors : undefined,
       });
     }
 
@@ -38,13 +48,27 @@ export async function registerUser(req, res) {
       password: hashedPassword,
     });
 
-    // Create session (to be implemented)
+    // Create session
+    const { accessToken, refreshToken } = await createSession({ user: newUser, req });
+
+    // Set tokens in HTTP-only cookies
+    res.cookie('accessToken', accessToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: ACCESS_TOKEN_COOKIE_MAX_AGE_MS,
+    });
+    res.cookie('refreshToken', refreshToken, {
+      ...COOKIE_OPTIONS,
+      maxAge: REFRESH_TOKEN_COOKIE_MAX_AGE_MS,
+    });
 
     // Respond with success
     return res.status(201).json({
       ok: true,
       message: 'User registered successfully',
-      user: process.env.NODE_ENV === 'development' ? newUser : null,
+      user:
+        process.env.NODE_ENV === 'development'
+          ? newUser
+          : { id: newUser._id, username: newUser.username },
     });
   } catch (error) {
     console.error('Error in registerUser():', error);
