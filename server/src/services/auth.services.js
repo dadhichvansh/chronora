@@ -33,6 +33,15 @@ export async function createSession({ user, req }) {
     return { accessToken, refreshToken };
   } catch (err) {
     console.error('Error creating session:', err);
-    throw new Error('Could not create session');
+    throw err;
+  }
+}
+
+export async function invalidateSession({ sessionId }) {
+  try {
+    return Session.findByIdAndUpdate(sessionId, { valid: false });
+  } catch (err) {
+    console.error('Error invalidating session:', err);
+    throw err;
   }
 }
