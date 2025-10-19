@@ -3,6 +3,7 @@ import { RootLayout } from './components/layout/Layout';
 import { ErrorPage } from './pages/ErrorPage';
 import { Home } from './pages/Home';
 import { Landing } from './pages/Landing';
+import { Auth } from './pages/Auth';
 
 const isLoggedIn = false;
 const router = createBrowserRouter([
@@ -12,6 +13,7 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [{ path: '/', element: isLoggedIn ? <Home /> : <Landing /> }],
   },
+  { path: '/auth', element: <Auth /> },
 ]);
 
 function App() {
