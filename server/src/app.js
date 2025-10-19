@@ -8,7 +8,14 @@ import authRoutes from './routes/auth.routes.js';
 const app = express();
 
 // CORS middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173', // your frontend URL
+    credentials: true, // allow cookies and auth headers
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 
 // Body parser
 app.use(express.json());
