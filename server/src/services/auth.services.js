@@ -1,6 +1,7 @@
 import Session from '../models/session.model.js';
+import User from '../models/user.model.js';
+import { createAccessToken, createRefreshToken, verifyRefreshToken } from '../utils/jwt.js';
 import { SESSION_EXPIRY_MS } from '../constants.js';
-import { createAccessToken, createRefreshToken } from '../utils/jwt.js';
 
 export async function createSession({ user, req }) {
   try {
@@ -42,6 +43,45 @@ export async function invalidateSession({ sessionId }) {
     return Session.findByIdAndUpdate(sessionId, { valid: false });
   } catch (err) {
     console.error('Error invalidating session:', err);
+    throw err;
+  }
+}
+
+export async function regenerateTokens({ refreshToken }) {
+  try {
+    const decoded = verifyRefreshToken(refreshToken);
+
+    const currentSession = await Session.findById(decoded.sessionId);
+    if (!currentSession || !currentSession.valid) {
+      throw new Error('Invalid session');
+    }
+
+    const user = await User.findById(currentSession.userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const userInfo = {
+      userId: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      sessionId: currentSession._id,
+    };
+
+    const newAccessToken = createAccessToken(userInfo);
+
+    const newRefreshToken = createRefreshToken({
+      sessionId: currentSession._id,
+    });
+
+    return {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+      user: userInfo,
+    };
+  } catch (err) {
+    console.error('Error in regenerating tokens():', err);
     throw err;
   }
 }
