@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Button } from './ui/Button';
 import { Feather } from 'lucide-react';
 
@@ -41,10 +42,10 @@ export function Navbar() {
 
           <div className="flex items-center gap-4">
             <Button variant="ghost" className="hidden sm:flex text-sm">
-              Sign In
+              <Link to="/auth">Sign In</Link>
             </Button>
             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium shadow-[0_0_20px_rgba(251,191,36,0.25)] hover:shadow-[0_0_30px_rgba(251,191,36,0.35)] transition-all">
-              Start Writing
+              <Link to="/auth">Start Writing</Link>
             </Button>
           </div>
         </div>
