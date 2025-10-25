@@ -3,6 +3,7 @@ import cors from 'cors';
 import requestIp from 'request-ip';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.routes.js';
+import { authMiddleware } from './middlewares/auth.middleware.js';
 
 // Initialize express app
 const app = express();
@@ -32,6 +33,7 @@ app.get('/', (req, res) => {
   res.json({ ok: true, message: 'Chronora server running 🚀' });
 });
 
+app.use(authMiddleware); // Apply auth middleware to all routes below
 app.use('/api/auth', authRoutes); // Auth routes
 
 export default app;
