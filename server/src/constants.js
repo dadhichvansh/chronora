@@ -1,6 +1,6 @@
 /**
  * Constants used throughout the server application.
- * For configuration values, refer to environment variables.
+ * For configuration values, refer to environment variables' reference in '.env.example' file.
  */
 
 // MongoDB connection string from environment variables
