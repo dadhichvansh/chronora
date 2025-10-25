@@ -127,7 +127,7 @@ export async function loginUser(req, res) {
     });
 
     // Respond with success
-    return res.status(201).json({
+    return res.status(200).json({
       ok: true,
       message: 'User logged in successfully',
       user:
