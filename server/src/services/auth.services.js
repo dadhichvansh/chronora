@@ -61,7 +61,7 @@ export async function regenerateTokens({ refreshToken }) {
       throw new Error('User not found');
     }
 
-    const userInfo = {
+    const accessTokenPayload = {
       userId: user._id,
       username: user.username,
       email: user.email,
@@ -69,16 +69,17 @@ export async function regenerateTokens({ refreshToken }) {
       sessionId: currentSession._id,
     };
 
-    const newAccessToken = createAccessToken(userInfo);
-
-    const newRefreshToken = createRefreshToken({
+    const refreshTokenPayload = {
       sessionId: currentSession._id,
-    });
+    };
+
+    const newAccessToken = createAccessToken(accessTokenPayload);
+    const newRefreshToken = createRefreshToken(refreshTokenPayload);
 
     return {
       accessToken: newAccessToken,
       refreshToken: newRefreshToken,
-      user: userInfo,
+      user: accessTokenPayload,
     };
   } catch (err) {
     console.error('Error in regenerating tokens():', err);
