@@ -17,7 +17,7 @@ export const REFRESH_TOKEN_EXPIRY = '7d'; // long-lived, 7 days
 export const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
-  sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
 };
 
 // Cookie maxAge in milliseconds
