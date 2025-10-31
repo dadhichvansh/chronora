@@ -77,8 +77,8 @@ export async function regenerateTokens({ refreshToken }) {
     const newRefreshToken = createRefreshToken(refreshTokenPayload);
 
     return {
-      accessToken: newAccessToken,
-      refreshToken: newRefreshToken,
+      newAccessToken,
+      newRefreshToken,
       user: accessTokenPayload,
     };
   } catch (err) {
