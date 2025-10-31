@@ -47,7 +47,7 @@ export async function invalidateSession({ sessionId }) {
   }
 }
 
-export async function regenerateTokens({ refreshToken }) {
+export async function regenerateTokens(refreshToken) {
   try {
     const decoded = verifyRefreshToken(refreshToken);
 
