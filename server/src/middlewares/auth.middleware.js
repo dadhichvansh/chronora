@@ -35,15 +35,15 @@ export async function authMiddleware(req, res, next) {
     // Check if only refresh token is present
     if (refreshToken) {
       try {
-        const { accessToken, refreshToken, user } = await regenerateTokens(refreshToken);
+        const { newAccessToken, newRefreshToken, user } = await regenerateTokens(refreshToken);
         req.user = user;
 
-        res.cookie('access_token', accessToken, {
+        res.cookie('access_token', newAccessToken, {
           ...COOKIE_OPTIONS,
           maxAge: ACCESS_TOKEN_COOKIE_MAX_AGE_MS,
         });
 
-        res.cookie('refresh_token', refreshToken, {
+        res.cookie('refresh_token', newRefreshToken, {
           ...COOKIE_OPTIONS,
           maxAge: REFRESH_TOKEN_COOKIE_MAX_AGE_MS,
         });
