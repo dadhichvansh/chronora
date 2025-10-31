@@ -36,7 +36,6 @@ export function Auth() {
 
     try {
       const { data } = await authApi.register({ username, email, password });
-      console.log(data);
 
       if (!data.ok) {
         toast({
