@@ -28,7 +28,6 @@ export async function authMiddleware(req, res, next) {
       } catch (err) {
         console.error('Access token verification failed:', err);
         req.user = null;
-        return next();
       }
     }
 
