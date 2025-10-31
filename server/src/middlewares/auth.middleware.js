@@ -22,7 +22,6 @@ export async function authMiddleware(req, res, next) {
     if (accessToken) {
       try {
         const decoded = verifyAccessToken(accessToken);
-        console.log(decoded);
         req.user = decoded;
         return next();
       } catch (err) {
