@@ -4,7 +4,9 @@ import { ErrorPage } from './pages/ErrorPage';
 import { Home } from './pages/Home';
 import { Landing } from './pages/Landing';
 import { Auth } from './pages/Auth';
+import { Me } from './pages/Me';
 import { useAuth } from './contexts/AuthContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { RedirectIfAuth } from './components/RedirectIfAuth';
 
 function App() {
@@ -15,8 +17,23 @@ function App() {
       path: '/',
       element: <RootLayout />,
       errorElement: <ErrorPage />,
-      children: [{ path: '/', element: user ? <Home /> : <Landing /> }],
+      children: [
+        // Public routes
+        { path: '/', element: user ? <Home /> : <Landing /> },
+
+        // Protected routes
+        {
+          path: '/me',
+          element: (
+            <ProtectedRoute>
+              <Me data={user} />
+            </ProtectedRoute>
+          ),
+        },
+      ],
     },
+
+    // Redirect logged-in users away from /auth
     {
       path: '/auth',
       element: (
