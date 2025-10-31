@@ -16,6 +16,11 @@ export function AuthProvider({ children }) {
           setUser(user);
         }
       } catch (err) {
+        console.error(
+          import.meta.env.VITE_ENV === 'development'
+            ? err.response.data.message
+            : undefined
+        );
         setUser(null);
       }
     };
