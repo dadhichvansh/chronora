@@ -28,11 +28,33 @@ export function AuthProvider({ children }) {
     checkAuth();
   }, []);
 
-  const login = (userData) => setUser(userData);
-  const logout = () => setUser(null);
+  const login = async (credentials) => {
+    const {
+      data: { ok, user },
+    } = await authApi.login(credentials);
+
+    if (ok) {
+      setUser(user);
+      return ok;
+    }
+
+    setUser(null);
+    return ok;
+  };
+
+  const logout = async () => {
+    const {
+      data: { ok },
+    } = await authApi.logout();
+
+    if (ok) {
+      setUser(null);
+      return ok;
+    }
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
