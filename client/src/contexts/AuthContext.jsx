@@ -18,11 +18,13 @@ export function AuthProvider({ children }) {
           setUser(user);
         }
       } catch (err) {
-        console.error(
-          import.meta.env.VITE_ENV === 'development'
-            ? err.response.data.message
-            : undefined
-        );
+        if (import.meta.env.MODE === 'development') {
+          console.error(
+            'Auth check failed:',
+            err.response?.data || err.message
+          );
+        }
+
         setUser(null);
       } finally {
         setIsLoading(false);
