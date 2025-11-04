@@ -28,7 +28,7 @@ export function AuthProvider({ children }) {
     checkAuth();
   }, []);
 
-  const login = async (credentials) => {
+  const loginUser = async (credentials) => {
     const {
       data: { ok, user },
     } = await authApi.login(credentials);
@@ -42,7 +42,7 @@ export function AuthProvider({ children }) {
     return ok;
   };
 
-  const logout = async () => {
+  const logoutUser = async () => {
     const {
       data: { ok },
     } = await authApi.logout();
@@ -54,7 +54,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser, loginUser, logoutUser }}>
       {children}
     </AuthContext.Provider>
   );
