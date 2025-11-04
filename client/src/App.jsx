@@ -8,41 +8,52 @@ import { Me } from './pages/Me';
 import { useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { RedirectIfAuth } from './components/RedirectIfAuth';
+import { useMemo } from 'react';
 
 function App() {
   const { user } = useAuth();
 
-  const router = createBrowserRouter([
-    {
-      path: '/',
-      element: <RootLayout />,
-      errorElement: <ErrorPage />,
-      children: [
-        // Public routes
-        { path: '/', element: user ? <Home /> : <Landing /> },
-
-        // Protected routes
+  const router = useMemo(
+    () =>
+      createBrowserRouter([
         {
-          path: '/me',
+          path: '/',
+          element: <RootLayout />,
+          errorElement: <ErrorPage />,
+          children: [
+            // Public routes
+            { path: '/', element: user ? <Home /> : <Landing /> },
+
+            // Protected routes
+            {
+              path: '/me',
+              element: (
+                <ProtectedRoute>
+                  <Me data={user} />
+                </ProtectedRoute>
+              ),
+            },
+          ],
+        },
+
+        // Redirect logged-in users away from /auth
+        {
+          path: '/auth',
           element: (
-            <ProtectedRoute>
-              <Me data={user} />
-            </ProtectedRoute>
+            <RedirectIfAuth>
+              <Auth />
+            </RedirectIfAuth>
           ),
         },
-      ],
-    },
 
-    // Redirect logged-in users away from /auth
-    {
-      path: '/auth',
-      element: (
-        <RedirectIfAuth>
-          <Auth />
-        </RedirectIfAuth>
-      ),
-    },
-  ]);
+        // Fallback route
+        {
+          path: '*',
+          element: <ErrorPage />,
+        },
+      ]),
+    [user]
+  );
 
   return <RouterProvider router={router} />;
 }
