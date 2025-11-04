@@ -8,10 +8,11 @@ import { Me } from './pages/Me';
 import { useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { RedirectIfAuth } from './components/RedirectIfAuth';
+import { Loader } from './components/Loader';
 import { useMemo } from 'react';
 
 function App() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
 
   const router = useMemo(
     () =>
@@ -55,6 +56,7 @@ function App() {
     [user]
   );
 
+  if (isLoading) return <Loader />;
   return <RouterProvider router={router} />;
 }
 
