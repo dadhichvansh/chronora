@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -19,11 +18,12 @@ import {
 import { Feather } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 import { authApi } from '../api/authApi';
+import { useAuth } from '../contexts/AuthContext';
 
 export function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
+  const { isLoading, setIsLoading } = useAuth();
 
   const handleSignUp = async (e) => {
     e.preventDefault();
