@@ -151,7 +151,7 @@ export async function loginUser(req, res) {
 export async function logoutUser(req, res) {
   try {
     // Get token from cookies
-    const refreshToken = req.cookies?.refreshToken;
+    const refreshToken = req.cookies?.refresh_token;
 
     // If token is missing, respond with error
     if (!refreshToken) {
