@@ -1,8 +1,19 @@
 import { Link } from 'react-router-dom';
 import { Button } from './ui/Button';
-import { Feather } from 'lucide-react';
+import { Feather, LogOut } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export function Navbar() {
+  const { user, logoutUser } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/60 backdrop-blur-2xl border-b border-border/50">
       <div className="container mx-auto px-6 lg:px-12 py-5">
@@ -41,12 +52,29 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Button variant="ghost" className="hidden sm:flex text-sm">
-              <Link to="/auth">Sign In</Link>
-            </Button>
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium shadow-[0_0_20px_rgba(251,191,36,0.25)] hover:shadow-[0_0_30px_rgba(251,191,36,0.35)] transition-all">
-              <Link to="/auth">Start Writing</Link>
-            </Button>
+            {user ? (
+              <Button
+                onClick={handleLogout}
+                variant="ghost"
+                className="text-sm flex items-center gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+            ) : (
+              <>
+                <Link to="/auth">
+                  <Button variant="ghost" className="hidden sm:flex text-sm">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/auth">
+                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium shadow-[0_0_20px_rgba(251,191,36,0.25)] hover:shadow-[0_0_30px_rgba(251,191,36,0.35)] transition-all">
+                    Start Writing
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
