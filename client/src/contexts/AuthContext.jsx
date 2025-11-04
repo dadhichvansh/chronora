@@ -6,6 +6,7 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -23,6 +24,8 @@ export function AuthProvider({ children }) {
             : undefined
         );
         setUser(null);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -30,27 +33,42 @@ export function AuthProvider({ children }) {
   }, []);
 
   const loginUser = async (credentials) => {
-    const {
-      data: { ok, user },
-    } = await authApi.login(credentials);
+    try {
+      const {
+        data: { ok, user },
+      } = await authApi.login(credentials);
 
-    if (ok) {
-      setUser(user);
-      return ok;
+      if (ok) {
+        setUser(user);
+        return ok;
+      }
+    } catch (err) {
+      console.error('Login failed:', err);
+      setUser(null);
+      return false;
+    } finally {
+      setIsLoading(false);
     }
-
-    setUser(null);
-    return ok;
   };
 
   const logoutUser = async () => {
-    const {
-      data: { ok },
-    } = await authApi.logout();
+    try {
+      setIsLoading(true);
 
-    if (ok) {
+      const {
+        data: { ok },
+      } = await authApi.logout();
+
+      if (ok) {
+        setUser(null);
+        return ok;
+      }
+    } catch (err) {
+      console.error('Logout failed:', err);
       setUser(null);
-      return ok;
+      return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -59,7 +77,16 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loginUser, logoutUser }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        setUser,
+        isLoading,
+        setIsLoading,
+        loginUser,
+        logoutUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
