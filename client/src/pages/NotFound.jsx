@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 
-export function ErrorPage() {
+export function NotFound() {
   const location = useLocation();
 
   useEffect(() => {
