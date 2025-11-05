@@ -1,17 +1,30 @@
-import { Link } from 'react-router-dom';
-import { Button } from './ui/Button';
-import { Feather, LogOut } from 'lucide-react';
+import { Feather, LogOut, User as UserIcon } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
+import { Button } from './ui/Button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './ui/DropdownMenu';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/Avatar';
 
 export function Navbar() {
   const { user, logoutUser } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
-    try {
-      await logoutUser();
-    } catch (error) {
-      console.error('Logout failed:', error);
+    const { ok } = await logoutUser();
+    if (!ok) {
+      toast.error('Error logging out');
     }
+
+    toast.success('Logged out successfully');
+    navigate('/');
   };
 
   return (
@@ -27,40 +40,103 @@ export function Navbar() {
               <h1 className="text-xl font-serif font-semibold tracking-tight">
                 Chronora
               </h1>
+              <p className="text-[10px] text-muted-foreground tracking-wide uppercase">
+                Your voice, your chronicle
+              </p>
             </div>
           </a>
 
           <div className="hidden md:flex items-center gap-10">
-            <a
-              href="#features"
-              className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
-            >
-              Features
-            </a>
-            <a
-              href="#showcase"
-              className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
-            >
-              Showcase
-            </a>
-            <a
-              href="#pricing"
-              className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
-            >
-              Pricing
-            </a>
+            {user ? (
+              <>
+                <Link
+                  to="/feed"
+                  className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  Global Feed
+                </Link>
+                <Link
+                  to="/"
+                  className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  My Stories
+                </Link>
+              </>
+            ) : (
+              <>
+                <a
+                  href="#features"
+                  className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  Features
+                </a>
+                <a
+                  href="#showcase"
+                  className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  Showcase
+                </a>
+                <a
+                  href="#pricing"
+                  className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  Pricing
+                </a>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-4">
             {user ? (
-              <Button
-                onClick={handleLogout}
-                variant="ghost"
-                className="text-sm flex items-center gap-2"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Logout</span>
-              </Button>
+              <DropdownMenu modal={false}>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-10 w-10 rounded-full"
+                  >
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage
+                        src={user.user_metadata?.avatar_url}
+                        alt={user.email || 'User'}
+                      />
+                      <AvatarFallback className="bg-primary/10 text-primary hover:text-accent-foreground">
+                        <UserIcon className="h-5 w-5" />
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {user.email?.split('@')[0]}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/me" className="cursor-pointer">
+                      Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/feed" className="cursor-pointer">
+                      Feed
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="cursor-pointer text-destructive"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <>
                 <Link to="/auth">
