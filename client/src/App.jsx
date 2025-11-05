@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { RootLayout } from './components/layout/Layout';
-import { ErrorPage } from './pages/ErrorPage';
+import { NotFound } from './pages/NotFound';
 import { Home } from './pages/Home';
 import { Landing } from './pages/Landing';
 import { Auth } from './pages/Auth';
@@ -20,7 +20,7 @@ function App() {
         {
           path: '/',
           element: <RootLayout />,
-          errorElement: <ErrorPage />,
+          errorElement: <NotFound />,
           children: [
             // Public routes
             { path: '/', element: user ? <Home /> : <Landing /> },
@@ -50,7 +50,7 @@ function App() {
         // Fallback route
         {
           path: '*',
-          element: <ErrorPage />,
+          element: <NotFound />,
         },
       ]),
     [user]
