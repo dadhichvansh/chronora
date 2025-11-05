@@ -14,7 +14,7 @@ export function Home() {
           <div className="space-y-4">
             <h1 className="text-4xl md:text-5xl font-serif font-bold">
               Welcome back,{' '}
-              <span className="text-primary">{user.email?.split('@')[0]}</span>
+              <span className="text-primary">{user.username}</span>
             </h1>
             <p className="text-muted-foreground text-lg">
               Your personal chronicle awaits. Start writing your thoughts.
