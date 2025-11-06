@@ -50,16 +50,22 @@ export function Navbar() {
             {user ? (
               <>
                 <Link
-                  to="/feed"
-                  className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
-                >
-                  Global Feed
-                </Link>
-                <Link
                   to="/"
                   className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
                 >
-                  My Stories
+                  Home
+                </Link>
+                <Link
+                  to="/feed"
+                  className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  Explore Blogs
+                </Link>
+                <Link
+                  to={`/me/${user.userId}`}
+                  className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
+                >
+                  My Profile
                 </Link>
               </>
             ) : (
@@ -118,13 +124,18 @@ export function Navbar() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link to="/me" className="cursor-pointer">
-                      Profile
+                    <Link to="/" className="cursor-pointer">
+                      Home
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/feed" className="cursor-pointer">
-                      Feed
+                      Explore Blogs
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to={`/me/${user.userId}`} className="cursor-pointer">
+                      My Profile
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
