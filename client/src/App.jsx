@@ -27,7 +27,7 @@ function App() {
 
             // Protected routes
             {
-              path: '/me',
+              path: '/me/:id',
               element: (
                 <ProtectedRoute>
                   <Me data={user} />
