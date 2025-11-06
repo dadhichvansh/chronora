@@ -10,6 +10,9 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { RedirectIfAuth } from './components/RedirectIfAuth';
 import { Loader } from './components/Loader';
 import { useMemo } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 function App() {
   const { user, isLoading } = useAuth();
@@ -57,7 +60,12 @@ function App() {
   );
 
   if (isLoading) return <Loader />;
-  return <RouterProvider router={router} />;
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  );
 }
 
 export default App;
