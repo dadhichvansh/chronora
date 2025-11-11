@@ -25,7 +25,7 @@ const tagsSchema = z.array(z.string()).optional();
  * Create Post Validation Schema
  */
 
-export const createPostSchema = z.object({
+export const CreatePostSchema = z.object({
   author: authorSchema,
   title: titleSchema,
   content: contentSchema,
