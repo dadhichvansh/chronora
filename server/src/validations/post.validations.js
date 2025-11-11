@@ -4,10 +4,6 @@ import z from 'zod';
  * Post schema validation using Zod
  */
 
-const authorSchema = z
-  .string()
-  .length(24, 'Author ID must be a valid 24-character MongoDB ObjectId');
-
 const titleSchema = z
   .string()
   .min(3, 'Title is required')
@@ -26,7 +22,6 @@ const tagsSchema = z.array(z.string()).optional();
  */
 
 export const CreatePostSchema = z.object({
-  author: authorSchema,
   title: titleSchema,
   content: contentSchema,
   coverImage: coverImageSchema,
