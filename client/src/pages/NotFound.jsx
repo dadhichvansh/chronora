@@ -1,8 +1,10 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { Button } from '../components/ui/Button';
 
 export function NotFound() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.error(
@@ -26,12 +28,12 @@ export function NotFound() {
             The page you're looking for doesn't exist or has been moved.
           </p>
         </div>
-        <a
-          href="/"
+        <Button
+          onClick={() => navigate('/')}
           className="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md font-medium shadow-[0_0_20px_rgba(251,191,36,0.25)] hover:shadow-[0_0_30px_rgba(251,191,36,0.35)] transition-all"
         >
           Return to Home
-        </a>
+        </Button>
       </div>
     </div>
   );
