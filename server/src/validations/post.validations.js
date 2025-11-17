@@ -18,7 +18,7 @@ const statusSchema = z.enum(['draft', 'published']).default('draft').optional();
 const tagsSchema = z.array(z.string()).optional();
 
 /**
- * Create Post Validation Schema
+ * Create Post, Update Post Validation Schema
  */
 
 export const CreatePostSchema = z.object({
@@ -27,4 +27,12 @@ export const CreatePostSchema = z.object({
   coverImage: coverImageSchema,
   status: statusSchema,
   tags: tagsSchema,
+});
+
+export const UpdatePostSchema = z.object({
+  title: titleSchema.optional(),
+  content: contentSchema.optional(),
+  coverImage: coverImageSchema.optional(),
+  status: statusSchema.optional(),
+  tags: tagsSchema.optional(),
 });
