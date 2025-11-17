@@ -51,7 +51,19 @@ export async function createPost(req, res) {
   }
 }
 
-export async function getAllPosts(req, res) {}
+export async function getAllPosts(req, res) {
+  try {
+    const posts = await Post.find().populate('author', 'username').sort({ createdAt: -1 });
+    return res.status(200).json({ ok: true, posts });
+  } catch (error) {
+    console.error('Error in getAllPosts():', error);
+    return res.status(500).json({
+      ok: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+}
 
 export async function getUserPosts(req, res) {
   try {
