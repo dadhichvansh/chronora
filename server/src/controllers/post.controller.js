@@ -53,7 +53,32 @@ export async function createPost(req, res) {
 
 export async function getAllPosts(req, res) {}
 
-export async function getUserPosts(req, res) {}
+export async function getUserPosts(req, res) {
+  try {
+    // Validate userId parameter
+    const { userId } = req.params;
+    if (!userId) {
+      return res.status(400).json({ ok: false, message: 'User ID is required' });
+    }
+
+    // Fetch posts by the specified user
+    const posts = await Post.find({ author: userId })
+      .populate('author', 'username')
+      .sort({ createdAt: -1 });
+    if (!posts) {
+      return res.status(404).json({ ok: false, message: 'No posts found for this user' });
+    }
+
+    return res.status(200).json({ ok: true, posts });
+  } catch (error) {
+    console.error('Error in getUserPosts():', error);
+    return res.status(500).json({
+      ok: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+}
 
 export async function updatePost(req, res) {}
 
