@@ -11,6 +11,8 @@ import { RedirectIfAuth } from './components/RedirectIfAuth';
 import { Loader } from './components/Loader';
 import { useMemo } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Feed } from './pages/Feed';
+import { Write } from './pages/Write';
 
 const queryClient = new QueryClient();
 
@@ -27,13 +29,25 @@ function App() {
           children: [
             // Public routes
             { path: '/', element: user ? <Home /> : <Landing /> },
+            {
+              path: '/feed',
+              element: <Feed />,
+            },
 
             // Protected routes
             {
-              path: '/me/:id',
+              path: '/u/:id',
               element: (
                 <ProtectedRoute>
                   <Me data={user} />
+                </ProtectedRoute>
+              ),
+            },
+            {
+              path: '/write',
+              element: (
+                <ProtectedRoute>
+                  <Write />
                 </ProtectedRoute>
               ),
             },
