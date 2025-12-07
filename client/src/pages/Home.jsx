@@ -1,16 +1,47 @@
-import { PenLine, BookOpen, Calendar } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '../components/ui/Button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../components/ui/Card';
+import { Skeleton } from '../components/ui/Skeleton';
+import { PenLine, FileText, Eye, Clock } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { useAuth } from '../contexts/AuthContext';
+import { postApi } from '../api/postApi';
 
 export function Home() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  const { data: posts } = useQuery({
+    queryKey: ['user-posts', user?.userId],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data } = await postApi.getUserPosts(user.userId);
+
+      if (!data.ok) return [];
+      return data.posts;
+    },
+    enabled: !!user,
+  });
 
   if (!user) return null;
+
+  const totalPosts = posts?.length || 0;
+  const publishedPosts =
+    posts?.filter((p) => p.status === 'published').length || 0;
+  const draftPosts = posts?.filter((p) => p.status === 'draft').length || 0;
+  const recentPosts = posts?.slice(0, 5) || [];
 
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-6 lg:px-12 pt-32 pb-20">
-        <div className="max-w-4xl mx-auto space-y-12">
+        <div className="max-w-6xl mx-auto space-y-8">
           <div className="space-y-4">
             <h1 className="text-4xl md:text-5xl font-serif font-bold">
               Welcome back,{' '}
@@ -19,52 +50,135 @@ export function Home() {
             <p className="text-muted-foreground text-lg">
               Your personal chronicle awaits. Start writing your thoughts.
             </p>
+            <Button onClick={() => navigate('/write')} className="mt-4">
+              <PenLine className="mr-2 h-4 w-4" />
+              Start Writing
+            </Button>
           </div>
 
+          {/* Activity Summary */}
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-lg border border-border/50 bg-card hover:border-primary/50 transition-colors">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                <PenLine className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="font-serif font-semibold text-lg mb-2">
-                New Entry
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Capture your thoughts and memories
-              </p>
-              <Button className="w-full">Start Writing</Button>
-            </div>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Total Posts
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-primary" />
+                  {isLoading ? (
+                    <Skeleton className="h-8 w-16" />
+                  ) : (
+                    <p className="text-3xl font-bold">{totalPosts}</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
 
-            <div className="p-6 rounded-lg border border-border/50 bg-card hover:border-primary/50 transition-colors">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                <BookOpen className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="font-serif font-semibold text-lg mb-2">
-                My Entries
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Browse your past chronicles
-              </p>
-              <Button variant="outline" className="w-full">
-                View All
-              </Button>
-            </div>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Published
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <Eye className="h-4 w-4 text-primary" />
+                  {isLoading ? (
+                    <Skeleton className="h-8 w-16" />
+                  ) : (
+                    <p className="text-3xl font-bold">{publishedPosts}</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
 
-            <div className="p-6 rounded-lg border border-border/50 bg-card hover:border-primary/50 transition-colors">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                <Calendar className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="font-serif font-semibold text-lg mb-2">
-                Timeline
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                View your entries chronologically
-              </p>
-              <Button variant="outline" className="w-full">
-                Open Timeline
-              </Button>
-            </div>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Drafts
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-primary" />
+                  {isLoading ? (
+                    <Skeleton className="h-8 w-16" />
+                  ) : (
+                    <p className="text-3xl font-bold">{draftPosts}</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
+
+          {/* Recent Posts */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="font-serif">Recent Posts</CardTitle>
+              <CardDescription>Your latest blog entries</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="space-y-4">
+                  {recentPosts.map((_, i) => (
+                    <div key={i} className="flex items-center gap-4">
+                      <Skeleton className="h-12 w-12 rounded" />
+                      <div className="space-y-2 flex-1">
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-3 w-1/2" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : recentPosts.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground mb-4">No posts yet</p>
+                  <Button onClick={() => navigate('/write')}>
+                    <PenLine className="mr-2 h-4 w-4" />
+                    Write Your First Post
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {recentPosts.map((post) => (
+                    <div
+                      key={post.id}
+                      className="flex items-start justify-between p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors cursor-pointer"
+                      onClick={() => navigate(`/write?id=${post.id}`)}
+                    >
+                      <div className="space-y-1 flex-1">
+                        <h3 className="font-serif font-semibold text-lg">
+                          {post.title}
+                        </h3>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {formatDistanceToNow(new Date(post.created_at), {
+                              addSuffix: true,
+                            })}
+                          </span>
+                          <span className="capitalize px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs">
+                            {post.status}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {totalPosts > 5 && (
+                    <Button
+                      variant="outline"
+                      className="w-full mt-4"
+                      onClick={() => navigate('/feed')}
+                    >
+                      View All Posts
+                    </Button>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>
