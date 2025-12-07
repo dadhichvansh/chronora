@@ -6,6 +6,7 @@ import {
   getUserPosts,
   updatePost,
 } from '../controllers/post.controller.js';
+import { uploadCoverImage } from '../middlewares/upload.middleware.js';
 
 const router = Router();
 
@@ -13,7 +14,7 @@ const router = Router();
 router.get('/', getAllPosts);
 
 // Protected routes for creating, updating, and deleting posts
-router.post('/', createPost);
+router.post('/', uploadCoverImage, createPost);
 router.get('/:userId', getUserPosts);
 router.put('/:postId', updatePost);
 router.delete('/:postId', deletePost);
