@@ -84,15 +84,15 @@ export function Feed() {
             <div className="space-y-6">
               {posts.map((post) => (
                 <Card
-                  key={post.id}
+                  key={post._id}
                   className="hover:border-primary/50 transition-colors"
-                  onClick={() => handlePostClick(post.id)}
+                  onClick={() => handlePostClick(post._id)}
                 >
                   <CardHeader>
                     <CardTitle className="font-serif">{post.title}</CardTitle>
                     <CardDescription>
                       Posted{' '}
-                      {formatDistanceToNow(new Date(post.created_at), {
+                      {formatDistanceToNow(new Date(post.createdAt), {
                         addSuffix: true,
                       })}
                     </CardDescription>

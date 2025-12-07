@@ -144,9 +144,9 @@ export function Home() {
                 <div className="space-y-4">
                   {recentPosts.map((post) => (
                     <div
-                      key={post.id}
+                      key={post._id}
                       className="flex items-start justify-between p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors cursor-pointer"
-                      onClick={() => navigate(`/write?id=${post.id}`)}
+                      onClick={() => navigate(`/write?id=${post._id}`)}
                     >
                       <div className="space-y-1 flex-1">
                         <h3 className="font-serif font-semibold text-lg">
@@ -155,7 +155,7 @@ export function Home() {
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Clock className="h-3 w-3" />
-                            {formatDistanceToNow(new Date(post.created_at), {
+                            {formatDistanceToNow(new Date(post.createdAt), {
                               addSuffix: true,
                             })}
                           </span>
