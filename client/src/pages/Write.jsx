@@ -1,0 +1,263 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { ArrowLeft, X, ImagePlus, Upload, Loader2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Button } from '../components/ui/Button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../components/ui/Card';
+import { Input } from '../components/ui/Input';
+import { Textarea } from '../components/ui/Textarea';
+import { Badge } from '../components/ui/Badge';
+import { useAuth } from '../contexts/AuthContext';
+import { postApi } from '../api/postApi';
+
+export function Write() {
+  const { user } = useAuth();
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [coverImageFile, setCoverImageFile] = useState(null);
+  const [coverImagePreview, setCoverImagePreview] = useState(null);
+  const [tags, setTags] = useState([]);
+  const [tagInput, setTagInput] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
+
+  const handleAddTag = () => {
+    const trimmedTag = tagInput.trim().toLowerCase();
+    if (trimmedTag && !tags.includes(trimmedTag) && tags.length < 5) {
+      setTags([...tags, trimmedTag]);
+      setTagInput('');
+    }
+  };
+
+  const handleRemoveTag = (tag) => {
+    setTags(tags.filter((t) => t !== tag));
+  };
+
+  const handleTagKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddTag();
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return;
+    }
+
+    setCoverImageFile(file);
+
+    const reader = new FileReader();
+    reader.onloadend = () => setCoverImagePreview(reader.result);
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setCoverImageFile(null);
+    setCoverImagePreview(null);
+  };
+
+  const handleSubmit = async (status) => {
+    if (!user) return toast.error('You must be logged in');
+
+    if (!title.trim() || !content.trim()) {
+      toast.error('Please fill in both title and content');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      const formData = new FormData();
+      formData.append('title', title.trim());
+      formData.append('content', content.trim());
+      formData.append('status', status);
+      formData.append('author', user.userId);
+      tags.forEach((tag) => formData.append('tags[]', tag));
+
+      if (coverImageFile) {
+        formData.append('coverImage', coverImageFile);
+      }
+
+      const { data } = await postApi.createPost(formData);
+      console.log(data);
+
+      if (!data.ok) {
+        toast.error('Failed to create post');
+      } else {
+        toast.success(status === 'draft' ? 'Draft saved!' : 'Story published!');
+        navigate('/feed');
+      }
+    } catch (error) {
+      console.error('Error creating post:', error);
+      toast.error('Something went wrong');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (!user) return null;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <main className="container mx-auto px-6 lg:px-12 pt-32 pb-20">
+        <div className="max-w-3xl mx-auto">
+          <Link to="/feed">
+            <Button variant="ghost" className="mb-6 gap-2">
+              <ArrowLeft className="w-4 h-4" />
+              Back to Feed
+            </Button>
+          </Link>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-3xl font-serif">
+                Write Your Story
+              </CardTitle>
+              <CardDescription>Share something meaningful.</CardDescription>
+            </CardHeader>
+
+            <CardContent>
+              <div className="space-y-6">
+                {/* Title */}
+                <div>
+                  <label className="text-sm font-medium">Title:</label>
+                  <Input
+                    placeholder="Give your story a title..."
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="text-lg"
+                  />
+                </div>
+
+                {/* Cover Image */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    <ImagePlus className="w-4 h-4" />
+                    Cover Image (optional, max 5MB):
+                  </label>
+
+                  {!coverImagePreview ? (
+                    <label
+                      htmlFor="coverImage"
+                      className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <Upload className="w-10 h-10 mb-3 text-muted-foreground" />
+                        <p className="mb-2 text-sm text-muted-foreground">
+                          <span className="font-semibold">Click to upload</span>{' '}
+                          or drag and drop
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          PNG, JPG or WebP
+                        </p>
+                      </div>
+                      <input
+                        id="coverImage"
+                        type="file"
+                        className="hidden"
+                        accept="image/png,image/jpeg,image/webp"
+                        onChange={handleImageChange}
+                      />
+                    </label>
+                  ) : (
+                    <div className="relative rounded-lg overflow-hidden border">
+                      <img
+                        src={coverImagePreview}
+                        alt="Cover preview"
+                        className="w-full h-48 object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="absolute top-2 right-2 p-1.5 bg-background/80 hover:bg-background rounded-full transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Tags */}
+                <div>
+                  <label className="text-sm font-medium">Tags (max 5):</label>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Add tag..."
+                      value={tagInput}
+                      onKeyDown={handleTagKeyDown}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      disabled={tags.length >= 5}
+                    />
+                    <Button
+                      onClick={handleAddTag}
+                      disabled={!tagInput.trim() || tags.length >= 5}
+                    >
+                      Add
+                    </Button>
+                  </div>
+
+                  <div className="flex gap-2 mt-2 flex-wrap">
+                    {tags.map((tag) => (
+                      <Badge key={tag} className="gap-1 flex items-center">
+                        {tag}
+                        <button onClick={() => handleRemoveTag(tag)}>
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div>
+                  <label className="text-sm font-medium">Content:</label>
+                  <Textarea
+                    placeholder="Tell your story..."
+                    className="min-h-[300px]"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                  />
+                </div>
+
+                {/* Buttons */}
+                <div className="flex gap-4">
+                  <Button
+                    onClick={() => handleSubmit('published')}
+                    disabled={submitting}
+                    className="flex-1"
+                  >
+                    {submitting ? 'Publishing...' : 'Publish'}
+                  </Button>
+
+                  <Button
+                    onClick={() => handleSubmit('draft')}
+                    disabled={submitting}
+                    variant="secondary"
+                  >
+                    Save Draft
+                  </Button>
+
+                  <Button variant="outline" onClick={() => navigate('/feed')}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    </div>
+  );
+}
