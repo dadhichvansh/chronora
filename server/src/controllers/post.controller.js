@@ -1,5 +1,6 @@
 import Post from '../models/post.model.js';
 import { CreatePostSchema, UpdatePostSchema } from '../validations/post.validations.js';
+import { uploadToCloudinary } from '../utils/cloudinary.js';
 
 export async function createPost(req, res) {
   try {
@@ -21,14 +22,22 @@ export async function createPost(req, res) {
     }
 
     // Destructure validated data
-    const { title, content, coverImage, status, tags } = result.data;
+    const { title, content, status, tags } = result.data;
+
+    // Handle cover image if provided
+    let coverImageUrl = '';
+
+    if (req.file) {
+      const result = await uploadToCloudinary(req.file.buffer);
+      coverImageUrl = result.secure_url;
+    }
 
     // Create new post
     const newPost = await Post.create({
       author: userId,
       title,
       content,
-      coverImage,
+      coverImage: coverImageUrl,
       status,
       tags,
     });
