@@ -328,7 +328,7 @@ export function Write() {
                     Save Draft
                   </Button>
 
-                  <Button variant="outline" onClick={() => navigate('/feed')}>
+                  <Button variant="outline" onClick={() => navigate('/')}>
                     Cancel
                   </Button>
                 </div>
