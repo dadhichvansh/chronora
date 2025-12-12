@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { ArrowLeft, X, ImagePlus, Upload, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -27,6 +28,37 @@ export function Write() {
   const [tagInput, setTagInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
+  const qc = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const postId = searchParams.get('postId') || null;
+
+  // Fetch post when editing
+  const { data: postData, isLoading: postLoading } = useQuery({
+    queryKey: ['post', postId],
+    enabled: !!postId, // only fetch if editing
+    queryFn: async () => {
+      const { data } = await postApi.getPostById(postId);
+      if (!data.ok) throw new Error(data.message || 'Failed to fetch post');
+      return data.post ?? null;
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  // when postData arrives, populate the form
+  useEffect(() => {
+    if (postData) {
+      setTitle(postData.title || '');
+      setContent(postData.content || '');
+      setTags(Array.isArray(postData.tags) ? postData.tags : []);
+      // coverImage (Cloudinary URL) -> preview
+      if (postData.coverImage) {
+        setCoverImagePreview(postData.coverImage);
+        setCoverImageFile(null); // file not set; will remain null unless user changes
+      } else {
+        setCoverImagePreview(null);
+      }
+    }
+  }, [postData]);
 
   const handleAddTag = () => {
     const trimmedTag = tagInput.trim().toLowerCase();
@@ -63,41 +95,77 @@ export function Write() {
     reader.readAsDataURL(file);
   };
 
+  const createMutation = useMutation({
+    mutationFn: (formData) => postApi.createPost(formData),
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: ['user-posts'] });
+      qc.invalidateQueries({ queryKey: ['feed-posts'] });
+      toast.success('Post created!');
+      navigate('/feed');
+    },
+    onError: (err) => {
+      console.error(err);
+      toast.error('Failed to create post');
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, formData }) => postApi.updatePost(id, formData),
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: ['user-posts'] });
+      qc.invalidateQueries({ queryKey: ['feed-posts'] });
+      qc.invalidateQueries({ queryKey: ['post', postId] });
+      toast.success('Post updated!');
+      navigate('/');
+    },
+    onError: (err) => {
+      console.error(err);
+      toast.error('Failed to update post');
+    },
+  });
+
   const handleRemoveImage = () => {
     setCoverImageFile(null);
     setCoverImagePreview(null);
   };
 
   const handleSubmit = async (status) => {
-    if (!user) return toast.error('You must be logged in');
+    if (!user) {
+      toast.error('You must be logged in');
+      return;
+    }
 
     if (!title.trim() || !content.trim()) {
       toast.error('Please fill in both title and content');
       return;
     }
 
-    try {
-      setSubmitting(true);
+    setSubmitting(true);
 
+    try {
       const formData = new FormData();
       formData.append('title', title.trim());
       formData.append('content', content.trim());
       formData.append('status', status);
       formData.append('author', user.userId);
-      tags.forEach((tag) => formData.append('tags[]', tag));
+      tags.forEach((tag) => formData.append('tags', tag));
 
+      // If user uploaded a new file, append it.
+      // If editing and user didn't change the cover, don't append a file:
       if (coverImageFile) {
         formData.append('coverImage', coverImageFile);
+      } else if (postId && coverImagePreview && !coverImageFile) {
+        // Optionally send existing cover URL so backend doesn't wipe it.
+        // Not required if backend preserves existing cover when no file is sent.
+        formData.append('existingCover', coverImagePreview);
       }
 
-      const { data } = await postApi.createPost(formData);
-      console.log(data);
-
-      if (!data.ok) {
-        toast.error('Failed to create post');
+      if (postId) {
+        // update
+        await updateMutation.mutateAsync({ id: postId, formData });
       } else {
-        toast.success(status === 'draft' ? 'Draft saved!' : 'Story published!');
-        navigate('/feed');
+        // create
+        await createMutation.mutateAsync(formData);
       }
     } catch (error) {
       console.error('Error creating post:', error);
@@ -107,23 +175,34 @@ export function Write() {
     }
   };
 
+  // show skeleton while loading postData when editing
+  if (postId && postLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-6 lg:px-12 pt-32 pb-20">
+          <p>Loading post...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!user) return null;
 
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-6 lg:px-12 pt-32 pb-20">
         <div className="max-w-3xl mx-auto">
-          <Link to="/feed">
+          <Link to="/">
             <Button variant="ghost" className="mb-6 gap-2">
               <ArrowLeft className="w-4 h-4" />
-              Back to Feed
+              Back to Dashboard
             </Button>
           </Link>
 
           <Card>
             <CardHeader>
               <CardTitle className="text-3xl font-serif">
-                Write Your Story
+                {postId ? 'Edit Your Story' : 'Write Your Story'}
               </CardTitle>
               <CardDescription>Share something meaningful.</CardDescription>
             </CardHeader>
