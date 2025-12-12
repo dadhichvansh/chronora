@@ -18,7 +18,7 @@ router.get('/', getAllPosts);
 router.post('/', uploadCoverImage, createPost);
 router.get('/:userId', getUserPosts);
 router.get('/:postId', getPostById);
-router.put('/:postId', updatePost);
+router.put('/:postId', uploadCoverImage, updatePost);
 router.delete('/:postId', deletePost);
 
 export default router;
