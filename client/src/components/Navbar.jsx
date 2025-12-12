@@ -62,7 +62,7 @@ export function Navbar() {
                   Explore Blogs
                 </Link>
                 <Link
-                  to={`/me/${user.userId}`}
+                  to={`/u/${user.userId}`}
                   className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
                 >
                   My Profile
