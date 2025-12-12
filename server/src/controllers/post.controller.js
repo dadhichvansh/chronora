@@ -101,6 +101,30 @@ export async function getUserPosts(req, res) {
   }
 }
 
+export async function getPostById(req, res) {
+  try {
+    // Validate postId parameter
+    const { postId } = req.params;
+    if (!postId) {
+      return res.status(400).json({ ok: false, message: 'Post ID is required' });
+    }
+
+    const post = await Post.findById(postId).populate('author', 'username');
+    if (!post) {
+      return res.status(404).json({ ok: false, message: 'Post not found' });
+    }
+
+    return res.status(200).json({ ok: true, post });
+  } catch (error) {
+    console.error('Error in getPostById():', error);
+    return res.status(500).json({
+      ok: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+}
+
 export async function updatePost(req, res) {
   try {
     // Ensure the user is authenticated
