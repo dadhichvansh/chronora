@@ -21,3 +21,14 @@ export function uploadToCloudinary(buffer, folder = 'chronora/covers') {
     stream.end(buffer);
   });
 }
+
+// Cloudinary delete helper
+export function deleteFromCloudinary(publicId) {
+  return new Promise((resolve, reject) => {
+    if (!publicId) return resolve(null);
+    cloudinary.uploader.destroy(publicId, (err, result) => {
+      if (err) return reject(err);
+      resolve(result);
+    });
+  });
+}
