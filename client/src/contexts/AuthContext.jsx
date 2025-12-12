@@ -14,9 +14,8 @@ export function AuthProvider({ children }) {
         const {
           data: { ok, user },
         } = await authApi.getCurrentUser();
-        if (ok) {
-          setUser(user);
-        }
+        if (ok) setUser(user);
+        else setUser(null);
       } catch (err) {
         if (import.meta.env.MODE === 'development') {
           console.error(
@@ -32,6 +31,10 @@ export function AuthProvider({ children }) {
     };
 
     checkAuth();
+  }, []);
+
+  useEffect(() => {
+    setupInterceptors(logoutUser);
   }, []);
 
   const loginUser = async (credentials) => {
@@ -73,10 +76,6 @@ export function AuthProvider({ children }) {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    setupInterceptors(logoutUser);
-  }, []);
 
   return (
     <AuthContext.Provider
