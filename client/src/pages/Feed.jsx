@@ -9,7 +9,6 @@ import { Button } from '../components/ui/Button';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '../components/ui/Card';
@@ -96,7 +95,7 @@ export function Feed() {
               {filteredPosts.map((post) => (
                 <Card
                   key={post._id}
-                  className="hover:border-primary/50 w-max transition-colors overflow-hidden cursor-pointer flex flex-col h-[350px]"
+                  className="hover:border-primary/50 w-xs transition-colors overflow-hidden cursor-pointer flex flex-col h-[350px]"
                   onClick={() => {
                     setSelectedPost(post);
                     handlePostClick(post._id);
@@ -174,12 +173,10 @@ export function Feed() {
               <DialogHeader>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
                   <UserIcon className="w-4 h-4" />
-                  <span>
-                    {selectedPost.profiles?.display_name || 'Anonymous'}
-                  </span>
+                  <span>{selectedPost.author.username || 'Anonymous'}</span>
                   <span>•</span>
                   <span>
-                    {formatDistanceToNow(new Date(selectedPost.created_at), {
+                    {formatDistanceToNow(new Date(selectedPost.createdAt), {
                       addSuffix: true,
                     })}
                   </span>
@@ -201,10 +198,10 @@ export function Feed() {
                   </div>
                 )}
               </DialogHeader>
-              {selectedPost.cover_image && (
+              {selectedPost.coverImage && (
                 <div className="w-full aspect-video overflow-hidden rounded-lg my-4">
                   <img
-                    src={selectedPost.cover_image}
+                    src={selectedPost.coverImage}
                     alt={selectedPost.title}
                     className="w-full h-full object-cover"
                   />
