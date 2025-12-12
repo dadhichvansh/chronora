@@ -1,6 +1,23 @@
 import Post from '../models/post.model.js';
 import { CreatePostSchema, UpdatePostSchema } from '../validations/post.validations.js';
-import { uploadToCloudinary } from '../utils/cloudinary.js';
+import { deleteFromCloudinary, uploadToCloudinary } from '../utils/cloudinary.js';
+
+// Helper to normalize tags from multipart/form-data
+const parseTags = (tagsField) => {
+  if (!tagsField) return [];
+  if (Array.isArray(tagsField)) return tagsField;
+  if (typeof tagsField === 'string') {
+    // support comma separated or single tag repeated pattern
+    if (tagsField.includes(',')) {
+      return tagsField
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean);
+    }
+    return [tagsField.trim()];
+  }
+  return [];
+};
 
 export async function createPost(req, res) {
   try {
@@ -139,17 +156,6 @@ export async function updatePost(req, res) {
       return res.status(400).json({ ok: false, message: 'Post ID is required' });
     }
 
-    // Validate request body
-    const result = UpdatePostSchema.safeParse(req.body);
-    if (!result.success) {
-      const formattedErrors = result.error?.issues?.[0]?.message || 'Invalid input';
-      return res.status(400).json({
-        ok: false,
-        message: 'Validation failed',
-        error: formattedErrors,
-      });
-    }
-
     // Find the post to update
     const post = await Post.findById(postId);
     if (!post) {
@@ -161,14 +167,46 @@ export async function updatePost(req, res) {
       return res.status(403).json({ ok: false, message: 'Forbidden: You cannot edit this post' });
     }
 
-    // Update post fields
-    const { title, content, coverImage, status, tags } = result.data;
+    // Validate request body
+    const { title, content, status, removeCover } = req.body;
+    const tags = parseTags(req.body.tags);
 
-    if (title !== undefined) post.title = title;
-    if (content !== undefined) post.content = content;
-    if (coverImage !== undefined) post.coverImage = coverImage;
-    if (status !== undefined) post.status = status;
-    if (tags !== undefined) post.tags = tags;
+    // Update post fields
+    if (title !== undefined) post.title = String(title).trim();
+    if (content !== undefined) post.content = String(content).trim();
+    if (status !== undefined) post.status = status === 'draft' ? 'draft' : 'published';
+    if (tags) post.tags = tags;
+
+    // Handle file upload (Multer memory => req.file.buffer)
+    if (req.file && req.file.buffer) {
+      // Upload new image
+      const uploadResult = await uploadToCloudinary(req.file.buffer, 'chronora/covers');
+
+      // Delete previous Cloudinary image if exists
+      if (post.coverImagePublicId) {
+        try {
+          await deleteFromCloudinary(post.coverImagePublicId);
+        } catch (err) {
+          console.warn('Failed to delete old cloudinary image:', err?.message || err);
+        }
+      }
+
+      // Save new image URL + public id
+      post.coverImage = uploadResult.secure_url || '';
+      post.coverImagePublicId = uploadResult.public_id || '';
+    } else if (removeCover === 'true' || removeCover === true) {
+      // Remove existing cover if requested
+      if (post.coverImagePublicId) {
+        try {
+          await deleteFromCloudinary(post.coverImagePublicId);
+        } catch (err) {
+          console.warn('Failed to delete cloudinary image:', err?.message || err);
+        }
+      }
+      post.coverImage = '';
+      post.coverImagePublicId = '';
+    }
+    // else: no file & no removeCover -> keep existing coverImage
 
     await post.save();
     await post.populate('author', 'username');
@@ -211,6 +249,18 @@ export async function deletePost(req, res) {
     // Check if the authenticated user is the author of the post
     if (post.author.toString() !== userId) {
       return res.status(403).json({ ok: false, message: 'Forbidden: You cannot delete this post' });
+    }
+
+    // Delete Cloudinary image if exists
+    if (post.coverImagePublicId) {
+      try {
+        await deleteFromCloudinary(post.coverImagePublicId);
+      } catch (err) {
+        console.warn(
+          'Failed to delete cloudinary image during post deletion:',
+          err?.message || err
+        );
+      }
     }
 
     // Delete the post
