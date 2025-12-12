@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '../components/ui/Button';
 import {
   Card,
@@ -9,16 +10,29 @@ import {
   CardTitle,
 } from '../components/ui/Card';
 import { Skeleton } from '../components/ui/Skeleton';
-import { PenLine, FileText, Eye, Clock } from 'lucide-react';
+import { PenLine, FileText, Eye, Clock, Pencil, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuth } from '../contexts/AuthContext';
 import { postApi } from '../api/postApi';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../components/ui/AlertDialog';
+import { toast } from '../hooks/use-toast';
 
 export function Home() {
-  const { user, isLoading } = useAuth();
+  const [deletePostId, setDeletePostId] = useState(null);
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const { data: posts } = useQuery({
+  const { data: posts, isLoading } = useQuery({
     queryKey: ['user-posts', user?.userId],
     queryFn: async () => {
       if (!user) return [];
@@ -29,6 +43,37 @@ export function Home() {
     },
     enabled: !!user,
   });
+
+  const handleDeletePost = async () => {
+    if (!deletePostId) return;
+
+    try {
+      const { data } = await postApi.deletePost(deletePostId);
+      if (!data.ok) {
+        toast({
+          title: 'Error',
+          description: 'Failed to delete post',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Success',
+          description: 'Post deleted successfully',
+        });
+        queryClient.invalidateQueries({ queryKey: ['user-posts'] });
+        queryClient.invalidateQueries({ queryKey: ['feed-posts'] });
+      }
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete post',
+        variant: 'destructive',
+      });
+    } finally {
+      setDeletePostId(null);
+    }
+  };
 
   if (!user) return null;
 
@@ -45,7 +90,7 @@ export function Home() {
           <div className="space-y-4">
             <h1 className="text-4xl md:text-5xl font-serif font-bold">
               Welcome back,{' '}
-              <span className="text-primary">{user.username}</span>
+              <span className="text-primary">{user.email?.split('@')[0]}</span>
             </h1>
             <p className="text-muted-foreground text-lg">
               Your personal chronicle awaits. Start writing your thoughts.
@@ -122,7 +167,7 @@ export function Home() {
             <CardContent>
               {isLoading ? (
                 <div className="space-y-4">
-                  {recentPosts.map((_, i) => (
+                  {[...Array(3)].map((_, i) => (
                     <div key={i} className="flex items-center gap-4">
                       <Skeleton className="h-12 w-12 rounded" />
                       <div className="space-y-2 flex-1">
@@ -145,8 +190,7 @@ export function Home() {
                   {recentPosts.map((post) => (
                     <div
                       key={post._id}
-                      className="flex items-start justify-between p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors cursor-pointer"
-                      onClick={() => navigate(`/write?id=${post._id}`)}
+                      className="flex items-start justify-between p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors"
                     >
                       <div className="space-y-1 flex-1">
                         <h3 className="font-serif font-semibold text-lg">
@@ -163,6 +207,23 @@ export function Home() {
                             {post.status}
                           </span>
                         </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => navigate(`/write?postId=${post._id}`)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => setDeletePostId(post._id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -181,6 +242,30 @@ export function Home() {
           </Card>
         </div>
       </main>
+
+      <AlertDialog
+        open={!!deletePostId}
+        onOpenChange={() => setDeletePostId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Post</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this post? This action cannot be
+              undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeletePost}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
