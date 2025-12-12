@@ -3,6 +3,7 @@ import {
   createPost,
   deletePost,
   getAllPosts,
+  getPostById,
   getUserPosts,
   updatePost,
 } from '../controllers/post.controller.js';
@@ -16,6 +17,7 @@ router.get('/', getAllPosts);
 // Protected routes for creating, updating, and deleting posts
 router.post('/', uploadCoverImage, createPost);
 router.get('/:userId', getUserPosts);
+router.get('/:postId', getPostById);
 router.put('/:postId', updatePost);
 router.delete('/:postId', deletePost);
 
