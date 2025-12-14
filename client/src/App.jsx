@@ -8,7 +8,6 @@ import { Me } from './pages/Me';
 import { useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { RedirectIfAuth } from './components/RedirectIfAuth';
-import { Loader } from './components/Loader';
 import { useMemo } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Feed } from './pages/Feed';
