@@ -17,7 +17,7 @@ import { Write } from './pages/Write';
 const queryClient = new QueryClient();
 
 function App() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
 
   const router = useMemo(
     () =>
@@ -72,6 +72,8 @@ function App() {
       ]),
     [user]
   );
+
+  if (isLoading) return null;
 
   return (
     <QueryClientProvider client={queryClient}>
