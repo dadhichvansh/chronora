@@ -1,10 +1,18 @@
 import User from '../models/user.model.js';
 import { deleteFromCloudinary, uploadToCloudinary } from '../utils/cloudinary.js';
 
-export function getCurrentUser(req, res) {
+export async function getCurrentUser(req, res) {
   try {
     // Get user from request (set by auth middleware)
-    const user = req.user;
+    const userId = req.user?.userId;
+    if (!userId) {
+      return res.status(404).json({
+        ok: false,
+        message: 'User not found',
+      });
+    }
+
+    const user = await User.findById(userId).select('-password -__v -imagePublicId');
     if (!user) {
       return res.status(404).json({
         ok: false,
@@ -14,13 +22,7 @@ export function getCurrentUser(req, res) {
 
     return res.status(200).json({
       ok: true,
-      user:
-        process.env.NODE_ENV === 'development'
-          ? user
-          : {
-              id: user._id,
-              username: user.username,
-            },
+      user,
     });
   } catch (error) {
     console.error('Error in getCurrentUser():', error);
@@ -61,11 +63,8 @@ export async function updateProfile(req, res) {
 
     if (displayName) user.displayName = displayName;
 
-    let image = '';
-    let imagePublicId = '';
-
     // Handle avatar upload
-    if (req.file.buffer) {
+    if (req.file?.buffer) {
       // Upload new image
       const uploadResult = await uploadToCloudinary(req.file.buffer, 'chronora/profile-images');
 
