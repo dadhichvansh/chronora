@@ -191,3 +191,63 @@ export async function logoutUser(req, res) {
     });
   }
 }
+
+export async function changePassword(req, res) {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      return res.status(404).json({
+        ok: false,
+        message: 'Please login to change password',
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        ok: false,
+        message: 'User not found',
+      });
+    }
+
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({
+        ok: false,
+        message: 'All password fields are required',
+      });
+    }
+
+    const isPasswordValid = await comparePassword(currentPassword, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({
+        ok: false,
+        message: 'Current password is incorrect',
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        ok: false,
+        message: 'New password and confirm password do not match',
+      });
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(200).json({
+      ok: true,
+      message: 'Password changed successfully',
+    });
+  } catch (error) {
+    console.error('Error in changePassword():', error);
+    return res.status(500).json({
+      ok: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+}
