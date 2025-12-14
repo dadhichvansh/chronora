@@ -1,9 +1,11 @@
 import { Router } from 'express';
-import { getCurrentUser } from '../controllers/user.controller.js';
+import { getCurrentUser, updateProfile } from '../controllers/user.controller.js';
+import { uploadProfileImage } from '../middlewares/upload.middleware.js';
 
 const router = Router();
 
-// Get current user
+// User routes
 router.get('/me', getCurrentUser);
+router.put('/me', uploadProfileImage, updateProfile);
 
 export default router;
