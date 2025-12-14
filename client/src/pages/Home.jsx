@@ -36,7 +36,7 @@ export function Home() {
     queryKey: ['user-posts', user?.userId],
     queryFn: async () => {
       if (!user) return [];
-      const { data } = await postApi.getUserPosts(user.userId);
+      const { data } = await postApi.getUserPosts(user._id);
 
       if (!data.ok) return [];
       return data.posts;
