@@ -53,7 +53,7 @@ export function Navbar() {
                   to="/"
                   className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
                 >
-                  Home
+                  Dashboard
                 </Link>
                 <Link
                   to="/feed"
@@ -62,10 +62,10 @@ export function Navbar() {
                   Explore Blogs
                 </Link>
                 <Link
-                  to={`/u/${user.userId}`}
+                  to="/write"
                   className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
                 >
-                  My Profile
+                  Write a Blog
                 </Link>
               </>
             ) : (
@@ -102,7 +102,7 @@ export function Navbar() {
                   >
                     <Avatar className="h-10 w-10">
                       <AvatarImage
-                        src={user.user_metadata?.avatar_url}
+                        src={user.image}
                         alt={user.email || 'User'}
                       />
                       <AvatarFallback className="bg-primary/10 text-primary hover:text-accent-foreground">
@@ -115,17 +115,22 @@ export function Navbar() {
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">
-                        {user.username || user.email?.split('@')[0]}
+                        {user.displayName || user.username}
                       </p>
                       <p className="text-xs leading-none text-muted-foreground">
-                        {user.email}
+                        {user.username || user.email}
                       </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
+                    <Link to={`/u/${user._id}`} className="cursor-pointer">
+                      My Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link to="/" className="cursor-pointer">
-                      Home
+                      Dashboard
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
@@ -134,8 +139,8 @@ export function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to={`/me/${user.userId}`} className="cursor-pointer">
-                      My Profile
+                    <Link to="/write" className="cursor-pointer">
+                      Write a Blog
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
