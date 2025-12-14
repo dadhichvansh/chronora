@@ -94,6 +94,12 @@ export function Me() {
     mutationFn: async () => {
       return userApi.updateProfile({ displayName });
     },
+    onSuccess: () => {
+      toast.success('Display name updated successfully');
+    },
+    onError: () => {
+      toast.error('Failed to update display name');
+    },
   });
 
   const saving = updateProfileMutation.isPending;
