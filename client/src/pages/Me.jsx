@@ -38,8 +38,6 @@ export function Me() {
     retry: false, // Do not retry on failure
   });
 
-  console.log(user);
-
   useEffect(() => {
     if (!user && !userLoading) {
       navigate('/auth');
