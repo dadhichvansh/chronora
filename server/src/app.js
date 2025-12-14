@@ -4,6 +4,7 @@ import requestIp from 'request-ip';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.routes.js';
 import postRoutes from './routes/post.routes.js';
+import userRoutes from './routes/user.routes.js';
 import { authMiddleware } from './middlewares/auth.middleware.js';
 
 // Initialize express app
@@ -37,5 +38,6 @@ app.get('/', (req, res) => {
 app.use(authMiddleware); // Apply auth middleware to all routes below
 app.use('/api/auth', authRoutes); // Auth routes
 app.use('/api/posts', postRoutes); // Post routes
+app.use('/api/users', userRoutes); // User routes
 
 export default app;
