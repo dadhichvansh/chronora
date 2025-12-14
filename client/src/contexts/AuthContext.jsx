@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { authApi } from '../api/authApi';
+import { userApi } from '../api/userApi';
 import { setupInterceptors } from '../lib/axios';
 
 const AuthContext = createContext();
@@ -13,7 +14,7 @@ export function AuthProvider({ children }) {
       try {
         const {
           data: { ok, user },
-        } = await authApi.getCurrentUser();
+        } = await userApi.getCurrentUser();
         if (ok) setUser(user);
         else setUser(null);
       } catch (err) {
