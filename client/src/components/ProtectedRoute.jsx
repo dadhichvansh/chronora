@@ -8,7 +8,7 @@ export function ProtectedRoute({ children }) {
   if (isLoading) return null;
 
   // If not logged in, redirect to landing page (or /auth)
-  if (!user) return <Navigate to="/" replace />;
+  if (!user) return <Navigate to="/auth" replace />;
 
   return children;
 }
