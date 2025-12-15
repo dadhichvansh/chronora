@@ -12,6 +12,7 @@ import { useMemo } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Feed } from './pages/Feed';
 import { Write } from './pages/Write';
+import { Post } from './pages/Post';
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,14 @@ function App() {
               element: (
                 <ProtectedRoute>
                   <Write />
+                </ProtectedRoute>
+              ),
+            },
+            {
+              path: '/posts',
+              element: (
+                <ProtectedRoute>
+                  <Post />
                 </ProtectedRoute>
               ),
             },
