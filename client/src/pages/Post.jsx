@@ -38,7 +38,6 @@ export function Post() {
     enabled: !!postId,
   });
 
-  console.log(data);
   const post = data?.post;
   const comments = data?.comments ?? [];
 
