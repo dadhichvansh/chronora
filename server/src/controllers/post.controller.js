@@ -1,4 +1,5 @@
 import Post from '../models/post.model.js';
+import Comment from '../models/comment.model.js';
 import { CreatePostSchema, UpdatePostSchema } from '../validations/post.validations.js';
 import { deleteFromCloudinary, uploadToCloudinary } from '../utils/cloudinary.js';
 
@@ -131,7 +132,18 @@ export async function getPostById(req, res) {
       return res.status(404).json({ ok: false, message: 'Post not found' });
     }
 
-    return res.status(200).json({ ok: true, post });
+    const comments = await Comment.find({ post: postId })
+      .populate('author', 'username')
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      ok: true,
+      post: {
+        ...post.toObject(),
+        likesCount: post.likes.length,
+      },
+      comments: comments || [],
+    });
   } catch (error) {
     console.error('Error in getPostById():', error);
     return res.status(500).json({
