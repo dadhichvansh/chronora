@@ -142,6 +142,46 @@ export async function getPostById(req, res) {
   }
 }
 
+export async function toggleLike(req, res) {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      return res.status(401).json({ ok: false, message: 'Unauthorized' });
+    }
+
+    const postId = req.params.postId;
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ ok: false, message: 'Post not found' });
+    }
+
+    const liked = post.likes.includes(userId);
+    if (liked) {
+      // Unlike the post
+      post.likes = post.likes.filter((id) => id.toString() !== userId);
+    } else {
+      // Like the post
+      post.likes.push(userId);
+    }
+
+    await post.save();
+
+    return res.status(200).json({
+      ok: true,
+      message: liked ? 'Post unliked' : 'Post liked',
+      likesCount: post.likes.length,
+      liked: !liked,
+    });
+  } catch (error) {
+    console.error('Error in toggleLike():', error);
+    return res.status(500).json({
+      ok: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+}
+
 export async function updatePost(req, res) {
   try {
     // Ensure the user is authenticated
