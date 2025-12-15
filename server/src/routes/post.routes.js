@@ -5,6 +5,7 @@ import {
   getAllPosts,
   getPostById,
   getUserPosts,
+  toggleLike,
   updatePost,
 } from '../controllers/post.controller.js';
 import { uploadCoverImage } from '../middlewares/upload.middleware.js';
@@ -20,5 +21,6 @@ router.get('/u/:userId', getUserPosts);
 router.get('/:postId', getPostById);
 router.put('/:postId', uploadCoverImage, updatePost);
 router.delete('/:postId', deletePost);
+router.post('/:postId/like', toggleLike);
 
 export default router;
