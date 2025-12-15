@@ -7,4 +7,5 @@ export const postApi = {
   getUserPosts: (userId) => api.get(`/api/posts/u/${userId}`),
   updatePost: (id, data) => api.put(`/api/posts/${id}`, data),
   deletePost: (id) => api.delete(`/api/posts/${id}`),
+  toggleLike: (postId) => api.post(`/api/posts/${postId}/like`),
 };
