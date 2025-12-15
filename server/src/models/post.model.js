@@ -9,8 +9,7 @@ const postSchema = new mongoose.Schema(
     coverImagePublicId: { type: String, default: '' },
     status: { type: String, enum: ['draft', 'published'], default: 'draft' },
     tags: [{ type: String, trim: true }],
-    views: { type: Number, default: 0 },
-    likes: { type: Number, default: 0 },
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User', default: 0 }],
   },
   { timestamps: true }
 );
