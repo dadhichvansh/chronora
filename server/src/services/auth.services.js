@@ -2,6 +2,7 @@ import Session from '../models/session.model.js';
 import User from '../models/user.model.js';
 import { createAccessToken, createRefreshToken, verifyRefreshToken } from '../utils/jwt.js';
 import { SESSION_EXPIRY_MS } from '../constants.js';
+import crypto from 'crypto';
 
 export async function createSession({ user, req }) {
   try {
@@ -85,4 +86,12 @@ export async function regenerateTokens(refreshToken) {
     console.error('Error in regenerating tokens():', err);
     throw err;
   }
+}
+
+export function generateResetToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+export function hashResetToken(token) {
+  return crypto.createHash('sha256').update(token).digest('hex');
 }
