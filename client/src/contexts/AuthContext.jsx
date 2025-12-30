@@ -12,11 +12,10 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const {
-          data: { ok, user },
-        } = await userApi.getCurrentUser();
-        if (ok) setUser(user);
-        else setUser(null);
+        const { data } = await userApi.getCurrentUser();
+        if (data.ok) {
+          setUser(data.user);
+        }
       } catch (err) {
         if (import.meta.env.MODE === 'development') {
           console.error(
@@ -39,42 +38,19 @@ export function AuthProvider({ children }) {
   }, []);
 
   const loginUser = async (credentials) => {
-    try {
-      const {
-        data: { ok, user },
-      } = await authApi.login(credentials);
-
-      if (ok) {
-        setUser(user);
-        return ok;
-      }
-    } catch (err) {
-      console.error('Login failed:', err);
-      setUser(null);
-      return false;
-    } finally {
-      setIsLoading(false);
+    const { data } = await authApi.login(credentials);
+    if (data.ok) {
+      setUser(data.user);
+      return true;
     }
+    return false;
   };
 
   const logoutUser = async () => {
-    try {
-      setIsLoading(true);
-
-      const {
-        data: { ok },
-      } = await authApi.logout();
-
-      if (ok) {
-        setUser(null);
-        return ok;
-      }
-    } catch (err) {
-      console.error('Logout failed:', err);
+    const { data } = await authApi.logout();
+    if (data.ok) {
       setUser(null);
-      return false;
-    } finally {
-      setIsLoading(false);
+      return true;
     }
   };
 
