@@ -14,6 +14,7 @@ import { Feed } from './pages/Feed';
 import { Write } from './pages/Write';
 import { Post } from './pages/Post';
 import { ResetPassword } from './pages/ResetPassword';
+import { Loader } from './components/Loader';
 
 const queryClient = new QueryClient();
 
@@ -85,7 +86,9 @@ function App() {
     [user]
   );
 
-  if (isLoading) return null;
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
