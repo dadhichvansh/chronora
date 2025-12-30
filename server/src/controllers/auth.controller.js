@@ -316,10 +316,16 @@ export async function forgotPassword(req, res) {
 
 export async function resetPassword(req, res) {
   try {
-    const { token } = req.params;
-    const { password } = req.body;
+    const { token, password } = req.body;
 
-    if (!password || password.length < 8) {
+    if (!token) {
+      return res.status(400).json({
+        ok: false,
+        message: 'Reset token is required',
+      });
+    }
+
+    if (!password || password.length < 6) {
       return res.status(400).json({
         ok: false,
         message: 'Password must be at least 6 characters',
