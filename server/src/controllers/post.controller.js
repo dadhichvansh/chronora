@@ -80,8 +80,14 @@ export async function createPost(req, res) {
 
 export async function getAllPosts(req, res) {
   try {
-    const posts = await Post.find().populate('author', 'username').sort({ createdAt: -1 });
-    return res.status(200).json({ ok: true, posts });
+    const posts = await Post.find({ status: 'published' })
+      .populate('author', 'username displayName')
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      ok: true,
+      posts,
+    });
   } catch (error) {
     console.error('Error in getAllPosts():', error);
     return res.status(500).json({
