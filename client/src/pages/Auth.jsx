@@ -19,10 +19,12 @@ import { ArrowLeft, Feather } from 'lucide-react';
 import { useToast } from '../hooks/use-toast';
 import { authApi } from '../api/authApi';
 import { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 export function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { loginUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
@@ -68,7 +70,7 @@ export function Auth() {
     const password = formData.get('signin-password');
 
     try {
-      const { data } = await authApi.login({ email, password });
+      const { data } = await loginUser({ email, password });
 
       if (!data.ok) {
         toast({
