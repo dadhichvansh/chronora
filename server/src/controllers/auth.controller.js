@@ -1,13 +1,19 @@
 import User from '../models/user.model.js';
 import { comparePassword, hashPassword } from '../utils/password.js';
 import { UserLoginSchema, UserRegistrationSchema } from '../validations/auth.validations.js';
-import { createSession, invalidateSession } from '../services/auth.services.js';
+import {
+  createSession,
+  generateResetToken,
+  hashResetToken,
+  invalidateSession,
+} from '../services/auth.services.js';
 import { verifyRefreshToken } from '../utils/jwt.js';
 import {
   ACCESS_TOKEN_COOKIE_MAX_AGE_MS,
   COOKIE_OPTIONS,
   REFRESH_TOKEN_COOKIE_MAX_AGE_MS,
 } from '../constants.js';
+import { sendEmail } from '../utils/sendEmail.js';
 
 export async function registerUser(req, res) {
   try {
@@ -244,6 +250,111 @@ export async function changePassword(req, res) {
     });
   } catch (error) {
     console.error('Error in changePassword():', error);
+    return res.status(500).json({
+      ok: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+}
+
+export async function forgotPassword(req, res) {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({
+        ok: false,
+        message: 'Email is required',
+      });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Do NOT reveal whether user exists (security)
+      return res.status(404).json({
+        ok: true,
+        message: 'If the email exists, a reset link has been sent',
+      });
+    }
+
+    const resetToken = generateResetToken();
+    const hashedToken = hashResetToken(resetToken);
+
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+    await user.save({ validateBeforeSave: false });
+
+    // Here, you would typically send the resetToken to the user's email.
+    // For this example, we'll just log it to the console.
+    const resetUrl = `${process.env.FRONTEND_URL}/auth/reset-password?token=${resetToken}`;
+
+    // send email - 🔥 DEV-ONLY: log token
+    await sendEmail({
+      to: user.email,
+      subject: 'Reset your password',
+      html: `
+        <p>You requested a password reset</p>
+        <p><a href="${resetUrl}">Reset Password</a></p>
+        <p>This link expires in 10 minutes.</p>
+      `,
+    });
+
+    return res.status(200).json({
+      ok: true,
+      message: 'If the email exists, a reset link has been sent',
+    });
+  } catch (error) {
+    console.error('Error in forgotPassword():', error);
+    return res.status(500).json({
+      ok: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+}
+
+export async function resetPassword(req, res) {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!password || password.length < 8) {
+      return res.status(400).json({
+        ok: false,
+        message: 'Password must be at least 6 characters',
+      });
+    }
+
+    const hashedToken = hashResetToken(token);
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        ok: false,
+        message: 'Invalid or expired reset token',
+      });
+    }
+
+    // hash password
+    user.password = await hashPassword(password);
+
+    // cleanup
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    return res.status(200).json({
+      ok: true,
+      message: 'Password reset successful',
+    });
+  } catch (error) {
+    console.error('Error in resetPassword():', error);
     return res.status(500).json({
       ok: false,
       message: 'Internal server error',
