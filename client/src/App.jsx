@@ -13,6 +13,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Feed } from './pages/Feed';
 import { Write } from './pages/Write';
 import { Post } from './pages/Post';
+import { ResetPassword } from './pages/ResetPassword';
 
 const queryClient = new QueryClient();
 
@@ -29,10 +30,7 @@ function App() {
           children: [
             // Public routes
             { path: '/', element: user ? <Home /> : <Landing /> },
-            {
-              path: '/feed',
-              element: <Feed />,
-            },
+            { path: '/feed', element: <Feed /> },
 
             // Protected routes
             {
@@ -70,6 +68,12 @@ function App() {
               <Auth />
             </RedirectIfAuth>
           ),
+        },
+
+        // Password reset route
+        {
+          path: '/auth/reset-password',
+          element: <ResetPassword />,
         },
 
         // Fallback route
