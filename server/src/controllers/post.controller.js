@@ -28,6 +28,9 @@ export async function createPost(req, res) {
       return res.status(401).json({ ok: false, message: 'Unauthorized' });
     }
 
+    // Normalize tags BEFORE validation
+    req.body.tags = parseTags(req.body.tags);
+
     // Validate request body
     const result = CreatePostSchema.safeParse(req.body);
     if (!result.success) {
