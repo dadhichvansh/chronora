@@ -31,7 +31,7 @@ export function Write() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [searchParams] = useSearchParams();
-  const postId = searchParams.get('postId') || null;
+  const postId = searchParams.get('blogId')?.split('-')[0] || null;
 
   // Fetch post when editing
   const { data: postData, isLoading: postLoading } = useQuery({
