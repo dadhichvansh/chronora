@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 // import { toast } from '../hooks/use-toast';
 import { useAuth } from '../contexts/AuthContext';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { postApi } from '../api/postApi';
 import { commentApi } from '../api/commentApi';
 
@@ -27,6 +27,7 @@ export function Post() {
   const [submittingComment, setSubmittingComment] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const postId = searchParams.get('postId');
 
   const { data, isLoading } = useQuery({
@@ -42,13 +43,47 @@ export function Post() {
   const comments = data?.comments ?? [];
 
   const likeMutation = useMutation({
-    mutationFn: async () => {
-      const { data } = await postApi.toggleLike(postId);
-      return data;
+    mutationFn: async () => await postApi.toggleLike(postId),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['post', postId] });
+
+      const previousData = queryClient.getQueryData(['post', postId]);
+
+      queryClient.setQueryData(['post', postId], (oldData) => {
+        if (!oldData || oldData.post) return oldData;
+
+        const alreadyLiked = oldData.post.likes.includes(user._id);
+
+        return {
+          ...oldData,
+          post: {
+            ...oldData.post,
+            likes: alreadyLiked
+              ? oldData.post.likes.filter((id) => id !== user._id)
+              : [...oldData.post.likes, user._id],
+            likesCount: alreadyLiked
+              ? oldData.post.likesCount - 1
+              : oldData.post.likesCount + 1,
+          },
+        };
+      });
+
+      return { previousData };
+    },
+    onError: (_err, _vars, context) => {
+      // Rollback on error
+      if (context?.previousData) {
+        queryClient.setQueryData(['post', postId], context.previousData);
+      }
+    },
+    onSettled: () => {
+      // Sync with backend truth
+      queryClient.invalidateQueries({ queryKey: ['post', postId] });
     },
   });
 
-  const isLiked = likeMutation.isPending;
+  const isLiked =
+    !!user && Array.isArray(post?.likes) && post.likes.includes(user._id);
 
   const handleLike = async () => {
     if (!user) return navigate('/auth');
@@ -189,6 +224,7 @@ export function Post() {
           <div className="flex items-center gap-6 py-4 border-y border-border">
             <Button
               variant="ghost"
+              disabled={likeMutation.isPending}
               className={`gap-2 ${isLiked ? 'text-red-500' : ''}`}
               onClick={handleLike}
             >
