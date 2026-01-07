@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useNavigate, Link, useParams } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { Card, CardContent } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -25,10 +25,10 @@ export function Post() {
   const { user } = useAuth();
   const [newComment, setNewComment] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const postId = searchParams.get('postId');
+  const { blogId } = useParams();
+  const postId = blogId?.split('-')[0]; // Extract ID from "id-title-slug" format
 
   const { data, isLoading } = useQuery({
     queryKey: ['post', postId],
