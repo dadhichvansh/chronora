@@ -17,6 +17,7 @@ import { Textarea } from '../components/ui/Textarea';
 import { Badge } from '../components/ui/Badge';
 import { useAuth } from '../contexts/AuthContext';
 import { postApi } from '../api/postApi';
+import RichEditor from '../components/RichEditor';
 
 export function Write() {
   const { user } = useAuth();
@@ -97,7 +98,7 @@ export function Write() {
 
   const createMutation = useMutation({
     mutationFn: (formData) => postApi.createPost(formData),
-    onSuccess: (res) => {
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['user-posts'] });
       qc.invalidateQueries({ queryKey: ['feed-posts'] });
       toast.success('Post created!');
@@ -111,7 +112,7 @@ export function Write() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, formData }) => postApi.updatePost(id, formData),
-    onSuccess: (res) => {
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['user-posts'] });
       qc.invalidateQueries({ queryKey: ['feed-posts'] });
       qc.invalidateQueries({ queryKey: ['post', postId] });
@@ -300,13 +301,12 @@ export function Write() {
                 </div>
 
                 {/* Content */}
-                <div>
-                  <label className="text-sm font-medium">Content:</label>
-                  <Textarea
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Content</label>
+                  <RichEditor
+                    content={content}
+                    onChange={setContent}
                     placeholder="Tell your story..."
-                    className="min-h-[300px]"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
                   />
                 </div>
 
