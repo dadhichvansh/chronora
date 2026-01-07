@@ -102,7 +102,7 @@ export function Write() {
       qc.invalidateQueries({ queryKey: ['user-posts'] });
       qc.invalidateQueries({ queryKey: ['feed-posts'] });
       toast.success('Post created!');
-      navigate('/feed');
+      navigate('/explore-blogs');
     },
     onError: (err) => {
       console.error(err);
