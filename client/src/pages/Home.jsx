@@ -83,6 +83,15 @@ export function Home() {
   const draftPosts = posts?.filter((p) => p.status === 'draft').length || 0;
   const recentPosts = posts?.slice(0, 5) || [];
 
+  const createSlug = (post) => {
+    const titleSlug = post.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-') // Replace spaces & symbols with "-"
+      .replace(/^-+|-+$/g, ''); // Remove leading/trailing "-"
+
+    return `${post._id}-${titleSlug}`;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-6 lg:px-12 pt-32 pb-20">
@@ -213,7 +222,7 @@ export function Home() {
                           variant="ghost"
                           size="icon"
                           onClick={() =>
-                            navigate(`/write-a-blog?postId=${post._id}`)
+                            navigate(`/write-a-blog?blogId=${createSlug(post)}`)
                           }
                         >
                           <Pencil className="h-4 w-4" />
@@ -233,7 +242,7 @@ export function Home() {
                     <Button
                       variant="outline"
                       className="w-full mt-4"
-                      onClick={() => navigate('/feed')}
+                      onClick={() => navigate('/explore-blogs')}
                     >
                       View All Posts
                     </Button>
