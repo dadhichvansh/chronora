@@ -146,7 +146,7 @@ export async function getPostById(req, res) {
       ok: true,
       post: {
         ...post.toObject(),
-        likesCount: post.likes.length,
+        likesCount: Array.isArray(post.likes) ? post.likes.length : 0,
       },
       comments: comments || [],
     });
