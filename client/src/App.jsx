@@ -55,7 +55,7 @@ function App() {
           children: [
             // Public routes
             { path: '/', element: user ? <Home /> : <Landing /> },
-            { path: '/feed', element: <Feed /> },
+            { path: '/explore-blogs', element: <Feed /> },
 
             // Protected routes
             {
@@ -67,7 +67,7 @@ function App() {
               ),
             },
             {
-              path: '/write',
+              path: '/write-a-blog',
               element: (
                 <ProtectedRoute>
                   <Write />
@@ -75,7 +75,7 @@ function App() {
               ),
             },
             {
-              path: '/posts',
+              path: '/explore-blogs/blog/:blogId',
               element: (
                 <ProtectedRoute>
                   <Post />

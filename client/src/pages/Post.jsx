@@ -143,10 +143,10 @@ export function Post() {
             <h1 className="text-2xl font-serif font-bold mb-4">
               Post not found
             </h1>
-            <Link to="/feed">
+            <Link to="/explore-blogs">
               <Button variant="outline" className="gap-2">
                 <ArrowLeft className="w-4 h-4" />
-                Back to Feed
+                Back to the Feed
               </Button>
             </Link>
           </div>
@@ -160,10 +160,10 @@ export function Post() {
       <main className="container mx-auto px-6 lg:px-12 pt-32 pb-20">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Back button */}
-          <Link to="/feed">
+          <Link to="/explore-blogs">
             <Button variant="ghost" className="gap-2 -ml-2 mb-2">
               <ArrowLeft className="w-4 h-4" />
-              Back to Feed
+              Back to the Feed
             </Button>
           </Link>
 

@@ -56,13 +56,13 @@ export function Navbar() {
                   Dashboard
                 </Link>
                 <Link
-                  to="/feed"
+                  to="/explore-blogs"
                   className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
                 >
                   Explore Blogs
                 </Link>
                 <Link
-                  to="/write"
+                  to="/write-a-blog"
                   className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
                 >
                   Write a Blog
@@ -70,24 +70,24 @@ export function Navbar() {
               </>
             ) : (
               <>
-                <a
-                  href="#features"
+                <Link
+                  to="/features"
                   className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
                 >
                   Features
-                </a>
-                <a
-                  href="#showcase"
+                </Link>
+                <Link
+                  to="/explore-blogs"
                   className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
                 >
-                  Showcase
-                </a>
-                <a
-                  href="#pricing"
+                  Explore Blogs
+                </Link>
+                <Link
+                  to="/auth"
                   className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
                 >
-                  Pricing
-                </a>
+                  Login to Write
+                </Link>
               </>
             )}
           </div>

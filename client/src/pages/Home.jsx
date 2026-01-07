@@ -95,7 +95,7 @@ export function Home() {
             <p className="text-muted-foreground text-lg">
               Your personal chronicle awaits. Start writing your thoughts.
             </p>
-            <Button onClick={() => navigate('/write')} className="mt-4">
+            <Button onClick={() => navigate('/write-a-blog')} className="mt-4">
               <PenLine className="mr-2 h-4 w-4" />
               Start Writing
             </Button>
@@ -180,7 +180,7 @@ export function Home() {
               ) : recentPosts.length === 0 ? (
                 <div className="text-center py-12">
                   <p className="text-muted-foreground mb-4">No posts yet</p>
-                  <Button onClick={() => navigate('/write')}>
+                  <Button onClick={() => navigate('/write-a-blog')}>
                     <PenLine className="mr-2 h-4 w-4" />
                     Write Your First Post
                   </Button>
@@ -212,7 +212,9 @@ export function Home() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => navigate(`/write?postId=${post._id}`)}
+                          onClick={() =>
+                            navigate(`/write-a-blog?postId=${post._id}`)
+                          }
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>

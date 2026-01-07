@@ -248,7 +248,7 @@ export function Feed() {
                 >
                   <PostCard
                     post={post}
-                    onClick={() => navigate(`/posts?postId=${post._id}`)}
+                    onClick={() => navigate(`/explore-blogs/blog/${post._id}`)}
                   />
                 </div>
               ))}
