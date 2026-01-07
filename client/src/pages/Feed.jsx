@@ -170,6 +170,15 @@ export function Feed() {
 
   const posts = data ?? [];
 
+  const createSlug = (post) => {
+    const titleSlug = post.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-') // Replace spaces & symbols with "-"
+      .replace(/^-+|-+$/g, ''); // Remove leading/trailing "-"
+
+    return `${post._id}-${titleSlug}`;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Background decoration */}
@@ -248,7 +257,9 @@ export function Feed() {
                 >
                   <PostCard
                     post={post}
-                    onClick={() => navigate(`/explore-blogs/blog/${post._id}`)}
+                    onClick={() =>
+                      navigate(`/explore-blogs/blog/${createSlug(post)}`)
+                    }
                   />
                 </div>
               ))}
