@@ -6,8 +6,6 @@ import { Landing } from './pages/Landing';
 import { Auth } from './pages/Auth';
 import { Me } from './pages/Me';
 import { useAuth } from './contexts/AuthContext';
-import { ProtectedRoute } from './components/ProtectedRoute';
-import { RedirectIfAuth } from './components/RedirectIfAuth';
 import { useMemo } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Feed } from './pages/Feed';
@@ -15,8 +13,34 @@ import { Write } from './pages/Write';
 import { Post } from './pages/Post';
 import { ResetPassword } from './pages/ResetPassword';
 import { Loader } from './components/Loader';
+import { Navigate } from 'react-router-dom';
 
 const queryClient = new QueryClient();
+
+function ProtectedRoute({ children }) {
+  const { user, isLoading } = useAuth();
+
+  // still checking auth — don't redirect yet
+  if (isLoading) return null;
+
+  // If not logged in, redirect to landing page (or /auth)
+  if (!user) return <Navigate to="/auth" replace />;
+
+  return children;
+}
+
+function RedirectIfAuth({ children }) {
+  const { user, isLoading } = useAuth();
+
+  // still checking auth — don't redirect yet
+  if (isLoading) return null;
+
+  // If user exists → redirect to home
+  if (user) return <Navigate to="/" replace />;
+
+  // Else show the wrapped component (login/register page)
+  return children;
+}
 
 function App() {
   const { user, isLoading } = useAuth();
