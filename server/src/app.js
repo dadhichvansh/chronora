@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.routes.js';
 import postRoutes from './routes/post.routes.js';
 import commentsRoutes from './routes/comment.routes.js';
 import userRoutes from './routes/user.routes.js';
+import aiRoutes from './routes/ai.routes.js';
 import { authMiddleware } from './middlewares/auth.middleware.js';
 
 // Initialize express app
@@ -41,5 +42,6 @@ app.use('/api/auth', authRoutes); // Auth routes
 app.use('/api/posts', postRoutes); // Post routes
 app.use('/api/comments', commentsRoutes); // Comment routes
 app.use('/api/users', userRoutes); // User routes
+app.use('/api/ai', aiRoutes); // AI routes
 
 export default app;
