@@ -1,10 +1,7 @@
 {
   "functions": {
-    "nodeVersion": "18.x"
-  },
-  "build": {
-    "env": {
-      "NODE_VERSION": "18"
+    "api/**/*.js": {
+      "runtime": "nodejs18.x"
     }
   }
 }
