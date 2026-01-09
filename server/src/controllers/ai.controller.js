@@ -1,34 +1,31 @@
-import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
 export async function generateBlog(req, res) {
   try {
     const { topic } = req.body;
+    if (!topic) {
+      return res.status(400).json({ ok: false, message: 'Topic is required' });
+    }
 
-    const prompt = `Write a detailed SEO-friendly blog on: "${topic}"
-    Respond in JSON format:
-    {
-      "title": "",
-      "tags": [],
-      "content": ""
-    }`;
+    const prompt = `
+      Write a full high-quality blog post about: "${topic}"
+      Format using:
+      - proper headings
+      - paragraphs
+      - examples
+      - insights
+    `;
 
-    const response = await openai.chat.completions.create({
-      model: 'gpt-5.2',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.7,
-    });
-
-    const text = response.choices[0].message.content;
-    const json = JSON.parse(text.substring(text.indexOf('{')));
+    const response = await model.generateContent(prompt);
+    const text = response.response.text();
 
     res.status(200).json({
       ok: true,
       message: 'Blog generated successfully',
-      ...json,
+      content: text,
     });
   } catch (error) {
     console.error('Error in generateBlog():', error);
@@ -43,24 +40,23 @@ export async function generateBlog(req, res) {
 export async function generateTitles(req, res) {
   try {
     const { content } = req.body;
+    if (!content) {
+      return res.status(400).json({ ok: false, message: 'Content is required' });
+    }
 
     const prompt = `
-      Generate 5 engaging blog titles for this content:
-      "${content}"
-      Respond as: { "titles": [] }
+      Based on the following content, suggest 5 attractive, SEO-friendly blog titles:
+      ${content}
     `;
 
-    const response = await openai.chat.completions.create({
-      model: 'gpt-5.2',
-      messages: [{ role: 'user', content: prompt }],
-    });
-
-    const json = JSON.parse(response.choices[0].message.content);
+    const response = await model.generateContent(prompt);
+    const text = response.response.text();
+    const titles = text.split('\n').filter((t) => t.trim() !== '');
 
     res.status(200).json({
       ok: true,
       message: 'Titles generated successfully',
-      ...json,
+      titles,
     });
   } catch (error) {
     console.error('Error in generateTitles():', error);
@@ -75,22 +71,22 @@ export async function generateTitles(req, res) {
 export async function fixGrammar(req, res) {
   try {
     const { content } = req.body;
+    if (!content) {
+      return res.status(400).json({ ok: false, message: 'Content is required' });
+    }
 
     const prompt = `
-      Fix grammar, clarity, and fluency of the following:
-      "${content}"
-      Return only improved text.
+      Fix grammar, punctuation, and clarity without changing the meaning:
+      ${content}
     `;
 
-    const response = await openai.chat.completions.create({
-      model: 'gpt-5.2',
-      messages: [{ role: 'user', content: prompt }],
-    });
+    const response = await model.generateContent(prompt);
+    const text = response.response.text();
 
     res.json({
       ok: true,
       message: 'Grammar fixed successfully',
-      content: response.choices[0].message.content,
+      content: text,
     });
   } catch (error) {
     console.error('Error in fixGrammar():', error);
@@ -105,22 +101,20 @@ export async function fixGrammar(req, res) {
 export async function improveContent(req, res) {
   try {
     const { content } = req.body;
+    if (!content) return res.status(400).json({ ok: false, message: 'Content is required' });
 
     const prompt = `
-      Improve this blog: add depth, detail, and improve readability.
-      "${content}"
-      Return improved content only.
+      Improve this content for readability, structure, and quality. Make it engaging & professional:
+      ${content}
     `;
 
-    const response = await openai.chat.completions.create({
-      model: 'gpt-5.2',
-      messages: [{ role: 'user', content: prompt }],
-    });
+    const response = await model.generateContent(prompt);
+    const text = response.response.text();
 
     res.json({
       ok: true,
       message: 'Content improved successfully',
-      content: response.choices[0].message.content,
+      content: text,
     });
   } catch (error) {
     console.error('Error in improveContent():', error);
