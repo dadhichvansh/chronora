@@ -6,7 +6,6 @@ import authRoutes from './routes/auth.routes.js';
 import postRoutes from './routes/post.routes.js';
 import commentsRoutes from './routes/comment.routes.js';
 import userRoutes from './routes/user.routes.js';
-import aiRoutes from './routes/ai.routes.js';
 import { authMiddleware } from './middlewares/auth.middleware.js';
 
 // Initialize express app
