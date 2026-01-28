@@ -123,7 +123,22 @@ export async function addProfileImage(req, res) {
       user.image = uploadResult.secure_url || '';
       user.imagePublicId = uploadResult.public_id || '';
     }
-  } catch (error) {}
+
+    await user.save();
+
+    return res.status(200).json({
+      ok: true,
+      message: 'Profile image updated successfully',
+      user,
+    });
+  } catch (error) {
+    console.error('Error in addProfileImage():', error);
+    return res.status(500).json({
+      ok: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
 }
 
 export async function removeProfileImage(req, res) {
