@@ -42,6 +42,5 @@ app.use('/api/auth', authRoutes); // Auth routes
 app.use('/api/posts', postRoutes); // Post routes
 app.use('/api/comments', commentsRoutes); // Comment routes
 app.use('/api/users', userRoutes); // User routes
-app.use('/api/ai', aiRoutes); // AI routes
 
 export default app;
