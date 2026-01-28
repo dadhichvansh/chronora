@@ -1,7 +1,12 @@
+import { useNavigate } from 'react-router-dom';
 import { Button } from './ui/Button';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export function HeroSection() {
+  const navigate = useNavigate();
+  const { user, testimonialsRef, scrollToSection } = useAuth();
+
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-24 pb-20">
       {/* Elegant gradient background */}
@@ -18,7 +23,7 @@ export function HeroSection() {
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 backdrop-blur-sm">
                 <Sparkles className="w-3.5 h-3.5 text-primary" />
                 <span className="text-xs font-medium text-foreground/80 tracking-wide">
-                  AI-Powered Writing Platform
+                  Modern Writing Platform
                 </span>
               </div>
 
@@ -30,9 +35,8 @@ export function HeroSection() {
                 </h1>
 
                 <p className="text-lg text-foreground/60 leading-relaxed max-w-xl">
-                  Craft beautiful stories with AI-powered tools that enhance
-                  your creativity. Generate titles, refine grammar, and publish
-                  with confidence.
+                  Craft beautiful stories with powerful tools that enhance your
+                  creativity. Write, collaborate, and publish with confidence.
                 </p>
               </div>
 
@@ -40,6 +44,9 @@ export function HeroSection() {
                 <Button
                   size="lg"
                   className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-[0_0_30px_rgba(251,191,36,0.25)] hover:shadow-[0_0_40px_rgba(251,191,36,0.35)] transition-all group"
+                  onClick={() =>
+                    user ? navigate('/write') : navigate('/auth')
+                  }
                 >
                   Start Writing Free
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -47,7 +54,8 @@ export function HeroSection() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-border hover:bg-secondary/50 font-medium"
+                  className="border-border hover:bg-secondary/50 hover:text-white font-medium"
+                  onClick={() => scrollToSection(testimonialsRef)}
                 >
                   View Examples
                 </Button>

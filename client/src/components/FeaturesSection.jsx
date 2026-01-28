@@ -11,21 +11,21 @@ import { Card } from './ui/Card';
 const features = [
   {
     icon: Sparkles,
-    title: 'AI Title Generation',
+    title: 'Beautiful Editor',
     description:
-      "Let AI craft compelling titles that capture your story's essence and engage readers.",
+      'A distraction-free writing environment with rich formatting options to bring your stories to life.',
   },
   {
     icon: Wand2,
-    title: 'Smart Grammar Check',
+    title: 'Smart Formatting',
     description:
-      'Real-time corrections and suggestions to polish your writing as you create.',
+      'Intuitive tools and shortcuts to polish your writing as you create.',
   },
   {
     icon: Users,
-    title: 'Collaborative Writing',
+    title: 'Community',
     description:
-      'Work seamlessly with co-authors and editors in real-time collaboration.',
+      'Connect with readers and fellow writers who share your passion for storytelling.',
   },
   {
     icon: BookOpen,
@@ -36,8 +36,7 @@ const features = [
   {
     icon: Shield,
     title: 'Privacy Controls',
-    description:
-      'Full control over who can view, edit, or comment on your stories.',
+    description: 'Full control over who can view or comment on your stories.',
   },
   {
     icon: TrendingUp,

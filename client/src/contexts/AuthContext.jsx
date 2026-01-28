@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { authApi } from '../api/authApi';
 import { userApi } from '../api/userApi';
 import { setupInterceptors } from '../lib/axios';
@@ -8,6 +8,7 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const testimonialsRef = useRef(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -20,7 +21,7 @@ export function AuthProvider({ children }) {
         if (import.meta.env.MODE === 'development') {
           console.error(
             'Auth check failed:',
-            err.response?.data || err.message
+            err.response?.data || err.message,
           );
         }
 
@@ -54,6 +55,13 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const scrollToSection = (ref) => {
+    ref.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -63,6 +71,8 @@ export function AuthProvider({ children }) {
         setIsLoading,
         loginUser,
         logoutUser,
+        testimonialsRef,
+        scrollToSection,
       }}
     >
       {children}

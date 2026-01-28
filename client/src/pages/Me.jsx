@@ -11,11 +11,10 @@ import {
   CardTitle,
 } from '../components/ui/Card';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/Avatar';
-import { Separator } from '../components/ui/Separator';
 import { toast } from 'sonner';
 import { Camera, Loader2, Save, User as UserIcon } from 'lucide-react';
 import { userApi } from '../api/userApi';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../api/authApi';
 
 export function Me() {
@@ -24,6 +23,7 @@ export function Me() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const fileInputRef = useRef(null);
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const { data: user, isLoading: userLoading } = useQuery({
@@ -54,16 +54,34 @@ export function Me() {
     mutationFn: async (file) => {
       const formData = new FormData();
       formData.append('image', file);
-      formData.append('displayName', displayName);
-      return userApi.updateProfile(formData);
+      return userApi.uploadProfileImage(formData);
     },
     onSuccess: () => {
       toast.success('Profile picture updated');
+      queryClient.invalidateQueries({ queryKey: ['user'] });
     },
     onError: () => {
       toast.error('Failed to upload profile picture');
     },
   });
+
+  const removeAvatarMutation = useMutation({
+    mutationFn: async () => userApi.removeProfileImage(),
+    onSuccess: () => {
+      toast.success('Profile picture removed');
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+    },
+    onError: () => {
+      toast.error('Failed to remove profile picture');
+    },
+  });
+
+  const removingAvatar = removeAvatarMutation.isPending;
+
+  const handleRemoveAvatar = (e) => {
+    e.stopPropagation(); // 🔥 prevents opening file picker
+    removeAvatarMutation.mutate();
+  };
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
@@ -86,26 +104,26 @@ export function Me() {
     }
 
     uploadAvatarMutation.mutate(file);
+    event.target.value = '';
   };
 
   const uploadingAvatar = uploadAvatarMutation.isPending;
 
-  const updateProfileMutation = useMutation({
-    mutationFn: async () => {
-      return userApi.updateProfile({ displayName });
-    },
+  const updateDisplayNameMutation = useMutation({
+    mutationFn: () => userApi.updateDisplayName(displayName),
     onSuccess: () => {
       toast.success('Display name updated successfully');
+      queryClient.invalidateQueries({ queryKey: ['user'] });
     },
     onError: () => {
       toast.error('Failed to update display name');
     },
   });
 
-  const saving = updateProfileMutation.isPending;
+  const saving = updateDisplayNameMutation.isPending;
 
-  const handleSaveProfile = async () => {
-    updateProfileMutation.mutate();
+  const handleSaveDisplayName = async () => {
+    updateDisplayNameMutation.mutate();
   };
 
   const changePasswordMutation = useMutation({
@@ -183,16 +201,34 @@ export function Me() {
                 <div className="relative group">
                   <Avatar
                     className="h-24 w-24 cursor-pointer ring-2 ring-border group-hover:ring-primary transition-all"
-                    onClick={handleAvatarClick}
+                    onClick={
+                      !uploadingAvatar && !removingAvatar
+                        ? handleAvatarClick
+                        : undefined
+                    }
                   >
                     <AvatarImage
-                      src={user?.image || ''}
+                      src={user?.image || null}
                       alt={displayName || 'User'}
                     />
                     <AvatarFallback className="bg-primary/10 text-primary text-2xl">
                       <UserIcon className="h-10 w-10" />
                     </AvatarFallback>
                   </Avatar>
+                  {user?.image && (
+                    <button
+                      onClick={handleRemoveAvatar}
+                      disabled={removingAvatar}
+                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-background border border-border flex items-center justify-center text-muted-foreground hover:text-destructive hover:border-destructive transition"
+                    >
+                      {removingAvatar ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <span className="text-sm leading-none">×</span>
+                      )}
+                    </button>
+                  )}
+
                   <div
                     className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                     onClick={handleAvatarClick}
@@ -259,7 +295,7 @@ export function Me() {
               </div>
 
               <Button
-                onClick={handleSaveProfile}
+                onClick={handleSaveDisplayName}
                 disabled={saving}
                 className="w-full sm:w-auto"
               >

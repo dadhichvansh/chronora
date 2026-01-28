@@ -59,7 +59,7 @@ function App() {
 
             // Protected routes
             {
-              path: '/u/:id',
+              path: '/profile/:id',
               element: (
                 <ProtectedRoute>
                   <Me data={user} />
@@ -67,7 +67,7 @@ function App() {
               ),
             },
             {
-              path: '/write-a-blog',
+              path: '/write-blog',
               element: (
                 <ProtectedRoute>
                   <Write />
@@ -107,7 +107,7 @@ function App() {
           element: <NotFound />,
         },
       ]),
-    [user]
+    [user],
   );
 
   if (isLoading) {

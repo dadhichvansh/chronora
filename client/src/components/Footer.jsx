@@ -17,8 +17,8 @@ export function Footer() {
               </div>
             </div>
             <p className="text-sm text-foreground/60 leading-relaxed max-w-sm">
-              Empowering writers with AI-powered tools to create, collaborate,
-              and share beautiful stories.
+              Empowering writers with powerful tools to create and share
+              beautiful stories.
             </p>
             <div className="flex gap-3">
               <a
@@ -72,14 +72,6 @@ export function Footer() {
                   className="text-foreground/60 hover:text-primary transition-colors"
                 >
                   Pricing
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-foreground/60 hover:text-primary transition-colors"
-                >
-                  AI Tools
                 </a>
               </li>
               <li>

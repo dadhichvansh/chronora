@@ -14,7 +14,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from './ui/Avatar';
 
 export function Navbar() {
-  const { user, logoutUser } = useAuth();
+  const { user, logoutUser, testimonialsRef, scrollToSection } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -59,13 +59,13 @@ export function Navbar() {
                   to="/explore-blogs"
                   className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
                 >
-                  Explore Blogs
+                  Explore
                 </Link>
                 <Link
-                  to="/write-a-blog"
+                  to="/write-blog"
                   className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
                 >
-                  Write a Blog
+                  Write Your Story
                 </Link>
               </>
             ) : (
@@ -80,13 +80,13 @@ export function Navbar() {
                   to="/explore-blogs"
                   className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
                 >
-                  Explore Blogs
+                  Explore
                 </Link>
                 <Link
-                  to="/auth"
+                  onClick={() => scrollToSection(testimonialsRef)}
                   className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
                 >
-                  Login to Write
+                  Testimonials
                 </Link>
               </>
             )}
@@ -124,7 +124,10 @@ export function Navbar() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link to={`/u/${user._id}`} className="cursor-pointer">
+                    <Link
+                      to={`/profile/${user._id}`}
+                      className="cursor-pointer"
+                    >
                       My Profile
                     </Link>
                   </DropdownMenuItem>
@@ -134,13 +137,13 @@ export function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/feed" className="cursor-pointer">
-                      Explore Blogs
+                    <Link to="/explore-blogs" className="cursor-pointer">
+                      Explore
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/write" className="cursor-pointer">
-                      Write a Blog
+                    <Link to="/write-blog" className="cursor-pointer">
+                      Create Blog
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />

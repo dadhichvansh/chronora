@@ -1,10 +1,11 @@
+import { useAuth } from '../contexts/AuthContext';
 import { Card } from './ui/Card';
 import { Quote } from 'lucide-react';
 
 const showcases = [
   {
     quote:
-      'Chronora transformed how I write. The AI suggestions are incredibly intuitive.',
+      'Chronora transformed how I write. The clean interface lets me focus on what matters most.',
     author: 'Sarah Mitchell',
     role: 'Content Creator',
     metric: '2.5x',
@@ -12,7 +13,7 @@ const showcases = [
   },
   {
     quote:
-      "The grammar checker caught nuances I would have missed. It's like having an editor on demand.",
+      "The rich editor caught nuances I would have missed. It's like having a professional tool on demand.",
     author: 'James Chen',
     role: 'Blogger',
     metric: '98%',
@@ -20,7 +21,7 @@ const showcases = [
   },
   {
     quote:
-      "Collaborative features made working with my team seamless. Best blogging platform I've used.",
+      'Publishing has never been easier. The platform handles everything so I can focus on writing.',
     author: 'Maya Patel',
     role: 'Marketing Lead',
     metric: '5hrs',
@@ -29,8 +30,14 @@ const showcases = [
 ];
 
 export function TestimonialsSection() {
+  const { testimonialsRef } = useAuth();
+
   return (
-    <section id="showcase" className="py-32 relative overflow-hidden">
+    <section
+      ref={testimonialsRef}
+      id="showcase"
+      className="py-32 relative overflow-hidden"
+    >
       {/* Subtle background accent */}
       <div className="absolute top-1/2 left-0 w-[600px] h-[300px] bg-primary/5 rounded-full blur-[120px] -translate-y-1/2" />
 

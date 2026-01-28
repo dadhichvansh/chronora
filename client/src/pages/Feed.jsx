@@ -208,7 +208,7 @@ export function Feed() {
             </div>
 
             <Link
-              to="/write"
+              to="/write-blog"
               className="animate-fade-up"
               style={{ animationDelay: '0.1s' }}
             >
