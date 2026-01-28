@@ -34,13 +34,13 @@ export async function getCurrentUser(req, res) {
   }
 }
 
-export async function updateProfile(req, res) {
+export async function updateDisplayName(req, res) {
   try {
     const userId = req.user?.userId;
     if (!userId) {
       return res.status(404).json({
         ok: false,
-        message: 'Please login to update profile',
+        message: 'Please login to update display name',
       });
     }
 
@@ -54,7 +54,7 @@ export async function updateProfile(req, res) {
 
     const { displayName } = req.body;
     // Nothing to update
-    if (!displayName && !req.file) {
+    if (!displayName) {
       return res.status(400).json({
         ok: false,
         message: 'Nothing to update',
@@ -62,6 +62,48 @@ export async function updateProfile(req, res) {
     }
 
     if (displayName) user.displayName = displayName;
+
+    await user.save();
+
+    return res.status(200).json({
+      ok: true,
+      message: 'Profile updated successfully',
+      user,
+    });
+  } catch (error) {
+    console.error('Error in updateProfile():', error);
+    return res.status(500).json({
+      ok: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+    });
+  }
+}
+
+export async function addProfileImage(req, res) {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      return res.status(404).json({
+        ok: false,
+        message: 'Please login to add profile image',
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        ok: false,
+        message: 'User not found',
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        ok: false,
+        message: 'Nothing to update',
+      });
+    }
 
     // Handle avatar upload
     if (req.file?.buffer) {
@@ -81,16 +123,55 @@ export async function updateProfile(req, res) {
       user.image = uploadResult.secure_url || '';
       user.imagePublicId = uploadResult.public_id || '';
     }
+  } catch (error) {}
+}
+
+export async function removeProfileImage(req, res) {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      return res.status(404).json({
+        ok: false,
+        message: 'Please login to remove profile image',
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        ok: false,
+        message: 'User not found',
+      });
+    }
+
+    // If no image to remove
+    if (!user.imagePublicId) {
+      return res.status(400).json({
+        ok: false,
+        message: 'No profile image to remove',
+      });
+    }
+
+    // Delete image from Cloudinary
+    try {
+      await deleteFromCloudinary(user.imagePublicId);
+    } catch (err) {
+      console.warn('Failed to delete cloudinary image:', err?.message || err);
+    }
+
+    // Remove image fields from user
+    user.image = '';
+    user.imagePublicId = '';
 
     await user.save();
 
     return res.status(200).json({
       ok: true,
-      message: 'Profile updated successfully',
+      message: 'Profile image removed successfully',
       user,
     });
   } catch (error) {
-    console.error('Error in updateProfile():', error);
+    console.error('Error in removeProfileImage():', error);
     return res.status(500).json({
       ok: false,
       message: 'Internal server error',
