@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { ArrowLeft, X, ImagePlus, Upload, Loader2 } from 'lucide-react';
+import { ArrowLeft, X, ImagePlus, Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import {
@@ -13,7 +13,6 @@ import {
   CardTitle,
 } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
-import { Textarea } from '../components/ui/Textarea';
 import { Badge } from '../components/ui/Badge';
 import { useAuth } from '../contexts/AuthContext';
 import { postApi } from '../api/postApi';
@@ -32,6 +31,8 @@ export function Write() {
   const qc = useQueryClient();
   const [searchParams] = useSearchParams();
   const postId = searchParams.get('blogId')?.split('-')[0] || null;
+  const safeContent = typeof content === 'string' ? content : '';
+  const safeTags = Array.isArray(tags) ? tags : [];
 
   // Fetch post when editing
   const { data: postData, isLoading: postLoading } = useQuery({
@@ -63,14 +64,16 @@ export function Write() {
 
   const handleAddTag = () => {
     const trimmedTag = tagInput.trim().toLowerCase();
-    if (trimmedTag && !tags.includes(trimmedTag) && tags.length < 5) {
-      setTags([...tags, trimmedTag]);
+    if (!trimmedTag) return;
+
+    if (!safeTags.includes(trimmedTag) && safeTags.length < 5) {
+      setTags([...safeTags, trimmedTag]);
       setTagInput('');
     }
   };
 
   const handleRemoveTag = (tag) => {
-    setTags(tags.filter((t) => t !== tag));
+    setTags(safeTags.filter((t) => t !== tag));
   };
 
   const handleTagKeyDown = (e) => {
@@ -149,7 +152,7 @@ export function Write() {
       formData.append('content', content.trim());
       formData.append('status', status);
       formData.append('author', user.userId);
-      tags.forEach((tag) => formData.append('tags', tag));
+      safeTags.forEach((tag) => formData.append('tags', tag));
 
       // If user uploaded a new file, append it.
       // If editing and user didn't change the cover, don't append a file:
@@ -278,18 +281,18 @@ export function Write() {
                       value={tagInput}
                       onKeyDown={handleTagKeyDown}
                       onChange={(e) => setTagInput(e.target.value)}
-                      disabled={tags.length >= 5}
+                      disabled={safeTags.length >= 5}
                     />
                     <Button
                       onClick={handleAddTag}
-                      disabled={!tagInput.trim() || tags.length >= 5}
+                      disabled={!tagInput.trim() || safeTags.length >= 5}
                     >
                       Add
                     </Button>
                   </div>
 
                   <div className="flex gap-2 mt-2 flex-wrap">
-                    {tags.map((tag) => (
+                    {safeTags.map((tag) => (
                       <Badge key={tag} className="gap-1 flex items-center">
                         {tag}
                         <button onClick={() => handleRemoveTag(tag)}>
@@ -304,7 +307,7 @@ export function Write() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Content</label>
                   <RichEditor
-                    content={content}
+                    content={safeContent}
                     onChange={setContent}
                     placeholder="Tell your story..."
                   />
